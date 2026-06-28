@@ -1,6 +1,9 @@
 import os
 import logging
-from sentence_transformers import SentenceTransformer
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    SentenceTransformer = None
 from groq import Groq
 from fastapi import HTTPException
 
@@ -14,8 +17,12 @@ CHROMA_DB_DIR = os.path.join(BASE_DIR, "chroma_db")
 
 # Load HuggingFace model globally for embeddings to keep it ready in memory
 try:
-    logger.info("Initializing SentenceTransformer embedding model 'all-MiniLM-L6-v2'...")
-    _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+    if SentenceTransformer is not None:
+        logger.info("Initializing SentenceTransformer embedding model 'all-MiniLM-L6-v2'...")
+        _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+    else:
+        logger.error("SentenceTransformer package is not installed. RAG embeddings will be unavailable.")
+        _embedding_model = None
 except Exception as e:
     logger.error(f"Error loading SentenceTransformer: {e}")
     _embedding_model = None
@@ -111,14 +118,20 @@ def generate_rag_response(prompt: str) -> str:
     """
     Calls Groq API to generate response based on prompt.
     """
-    # Import key locally to avoid circular dependencies
-    try:
-        from main import GROQ_API_KEY
-    except ModuleNotFoundError:
-        import sys
-        sys.path.append(os.path.dirname(BASE_DIR))
-        from main import GROQ_API_KEY
-    client = Groq(api_key=GROQ_API_KEY)
+    # Resolve Groq API key from environment first, falling back to module import to prevent circular dependency issues
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        try:
+            from main import GROQ_API_KEY
+            api_key = GROQ_API_KEY
+        except Exception:
+            pass
+            
+    if not api_key:
+        logger.error("GROQ_API_KEY could not be loaded from environment or main module.")
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured.")
+        
+    client = Groq(api_key=api_key)
     model_name = "llama-3.3-70b-versatile"
     fallback_model = "llama-3.1-8b-instant"
     
