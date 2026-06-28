@@ -1,222 +1,164 @@
-import React, { useEffect, useContext, useRef } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import api from "../api/axiosConfig";
 import { useLocation } from "react-router-dom";
-
-const getBpKeys = (storage) => Object.keys(storage).filter(k => k.startsWith('bp-') || k.startsWith('botpress'));
-
-const clearBotpressStorage = () => {
-  getBpKeys(localStorage).forEach(k => localStorage.removeItem(k));
-  getBpKeys(sessionStorage).forEach(k => sessionStorage.removeItem(k));
-};
-
-const saveUserState = (email) => {
-  if (!email) return;
-  const state = { local: {}, session: {} };
-  getBpKeys(localStorage).forEach(k => {
-    state.local[k] = localStorage.getItem(k);
-  });
-  getBpKeys(sessionStorage).forEach(k => {
-    state.session[k] = sessionStorage.getItem(k);
-  });
-  localStorage.setItem(`bp_state_${email}`, JSON.stringify(state));
-};
-
-const loadUserState = (email) => {
-  if (!email) return;
-  const stateStr = localStorage.getItem(`bp_state_${email}`);
-  if (stateStr) {
-    try {
-      const state = JSON.parse(stateStr);
-      if (state.local) {
-        Object.keys(state.local).forEach(k => localStorage.setItem(k, state.local[k]));
-      } else {
-        // legacy fallback from old backups
-        Object.keys(state).forEach(k => localStorage.setItem(k, state[k]));
-      }
-      if (state.session) {
-        Object.keys(state.session).forEach(k => sessionStorage.setItem(k, state.session[k]));
-      }
-    } catch (e) {
-      console.error('Error parsing botpress state', e);
-    }
-  }
-};
+import { AuthContext } from "../context/AuthContext";
+import "./Botpresschat.css";
 
 const BotpressChat = () => {
-  const { user, loading } = useContext(AuthContext);
-  const initialized = useRef(false);
+  const { user } = useContext(AuthContext);
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      sender: "bot",
+      text: "👋 Welcome to PackMate Travel Assistant! I can help you with air travel questions such as baggage rules, cabin and checked luggage, prohibited items, customs regulations, airline policies, and travel guidelines. Please note that this assistant is designed specifically for flight-related travel queries.",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // Automatic recovery for corrupted botpress state which causes 'conversation_creating' and 'EventSource' errors
+  // Auto-scroll to bottom of conversation
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
-    const handleUnhandledRejection = (event) => {
-      const isBotpressError = 
-        event.reason && 
-        (
-          (typeof event.reason.toString === 'function' && event.reason.toString().includes('conversation_creating')) ||
-          (event.reason.message && event.reason.message.includes('conversation_creating')) ||
-          (typeof event.reason.toString === 'function' && event.reason.toString().includes('EventSource')) ||
-          (event.reason.message && event.reason.message.includes('EventSource'))
-        );
+    scrollToBottom();
+  }, [messages, isLoading]);
 
-      if (isBotpressError) {
-        console.warn("Detected corrupted Botpress state. Forcing storage reset...");
-        
-        // aggressively clear botpress keys to get a fresh client Id
-        clearBotpressStorage();
-        
-        const currentUser = user?.email || localStorage.getItem("last_bp_user");
-        if (currentUser) {
-           localStorage.removeItem(`bp_state_${currentUser}`);
-        }
-        localStorage.removeItem("last_bp_user");
-        
-        // Prevent infinite reload loops 
-        if (!sessionStorage.getItem("bp_reloaded")) {
-          sessionStorage.setItem("bp_reloaded", "true");
-          window.location.reload();
-        } else {
-          console.error("Botpress failed to initialize even after clearing state.");
-        }
-      }
-    };
-    
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-    return () => {
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    };
-  }, [user]);
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
-  // 🖱️ Hide chat bot if clicking outside
-  useEffect(() => {
-    // Aggressive hide function targeting both standard APIs and iframe postMessages
-    const forceHideBot = () => {
-      try {
-        window.postMessage({ action: "hide", type: "botpress-webchat" }, "*");
-        
-        if (window.botpressWebChat && typeof window.botpressWebChat.sendEvent === 'function') {
-          if (window.botpressWebChat?.isOpen?.()) {
-            const togglePromise = window.botpressWebChat.toggle();
-            if (togglePromise && typeof togglePromise.catch === 'function') togglePromise.catch(() => {});
-          }
-        }
-        
-        if (window.botpress) {
-          if (typeof window.botpress.sendEvent === 'function') {
-             const eventPromise = window.botpress.sendEvent({ type: "hide" });
-             if (eventPromise && typeof eventPromise.catch === 'function') eventPromise.catch(() => {});
-          }
-          if (typeof window.botpress.close === 'function') {
-             const closePromise = window.botpress.close();
-             if (closePromise && typeof closePromise.catch === 'function') closePromise.catch(() => {});
-          }
-        }
-      } catch (err) { }
-    };
+    const userMessage = input.trim();
+    setInput("");
+    setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
+    setIsLoading(true);
 
-    const handleClickOutside = (e) => {
-      forceHideBot();
-    };
+    try {
+      const res = await api.post("/travel-chat", { message: userMessage });
+      const botResponse = res.data;
 
-    // Capture phase (true) prevents event.stopPropagation() on elements from blocking the hide logic
-    document.addEventListener("click", handleClickOutside, true);
-    document.addEventListener("touchstart", handleClickOutside, true);
-    return () => {
-      document.removeEventListener("click", handleClickOutside, true);
-      document.removeEventListener("touchstart", handleClickOutside, true);
-    };
-  }, []);
-
-  // Control Visibility strictly based on Authentication Routing
-  useEffect(() => {
-    const widget = document.getElementById("bp-web-widget") || document.getElementById("botpress-webchat");
-    if (widget) {
-      if (location.pathname === "/login" || location.pathname === "/signup") {
-        widget.style.display = "none";
-        try {
-          window.postMessage({ action: "hide", type: "botpress-webchat" }, "*");
-          if (window.botpress) window.botpress.close?.();
-          if (window.botpressWebChat) window.botpressWebChat.sendEvent?.({ type: "hide" });
-        } catch (e) { }
-      } else {
-        widget.style.display = "block";
-      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: botResponse.answer,
+          sources: botResponse.sources || [],
+          isFallback: botResponse.is_fallback || false,
+        },
+      ]);
+    } catch (err) {
+      console.error("Error communicating with travel assistant chatbot:", err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: "I'm sorry, I encountered an error. Please try again later.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
-  }, [location.pathname]);
+  };
 
-  useEffect(() => {
-    if (loading) return;
+  // Hide the chatbot on auth pages (login & signup)
+  if (location.pathname === "/login" || location.pathname === "/signup") {
+    return null;
+  }
 
-    const currentUser = user?.email || "";
-    const lastUserRaw = localStorage.getItem("last_bp_user");
-    const lastUser = lastUserRaw !== null ? lastUserRaw : "";
+  return (
+    <div className="travel-chatbot-container">
+      {/* Floating Toggle Button */}
+      {!isOpen && (
+        <button
+          className="chatbot-toggle-btn"
+          onClick={() => setIsOpen(true)}
+          title="Ask Travel Assistant"
+        >
+          <div className="chatbot-icon">💬</div>
+          <span className="chatbot-toggle-text">Travel Assistant</span>
+        </button>
+      )}
 
-    let needsReinit = false;
+      {/* Chat Window */}
+      {isOpen && (
+        <div className="chatbot-window">
+          {/* Header */}
+          <div className="chatbot-header">
+            <div className="chatbot-header-info">
+              <div className="chatbot-avatar">🤖</div>
+              <div>
+                <h4 className="chatbot-title">PackMate Assistant</h4>
+                <p className="chatbot-subtitle">Online • PDF Travel RAG</p>
+              </div>
+            </div>
+            <button className="chatbot-close-btn" onClick={() => setIsOpen(false)}>
+              ✕
+            </button>
+          </div>
 
-    // Handle user change context
-    if (lastUser !== currentUser) {
-      if (lastUser) saveUserState(lastUser);
-      clearBotpressStorage();
-      if (currentUser) loadUserState(currentUser);
-      localStorage.setItem("last_bp_user", currentUser);
-      needsReinit = true;
-    } else if (!initialized.current && !currentUser) {
-      // Guest refresh scenario
-      clearBotpressStorage();
-      needsReinit = true;
-    }
+          {/* Messages Area */}
+          <div className="chatbot-messages">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`chatbot-message-row ${msg.sender}`}>
+                <div className={`chatbot-message-bubble ${msg.sender}`}>
+                  {msg.isFallback && (
+                    <span className="chatbot-fallback-badge">General AI Suggestion</span>
+                  )}
+                  <p className="chatbot-message-text">{msg.text}</p>
+                  {msg.isFallback && (
+                    <div className="chatbot-fallback-disclaimer">
+                      ⚠️ This answer is not from the uploaded travel documents and should be verified with official sources.
+                    </div>
+                  )}
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className="chatbot-sources">
+                      <span className="sources-label">Sources:</span>
+                      {msg.sources.map((src, sIdx) => (
+                        <span key={sIdx} className="source-pill" title={src}>
+                          📄 {src.length > 20 ? `${src.substring(0, 17)}...` : src}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
 
-    const SCRIPT1_ID = "botpress-inject-js";
-    const SCRIPT2_ID = "botpress-config-js";
+            {/* Typing Loader */}
+            {isLoading && (
+              <div className="chatbot-message-row bot">
+                <div className="chatbot-message-bubble bot typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
 
-    const loadBotpress = () => {
-      // Complete teardown of active iframe and scripts
-      const oldConfig = document.getElementById(SCRIPT2_ID);
-      if (oldConfig) oldConfig.remove();
-
-      const oldInject = document.getElementById(SCRIPT1_ID);
-      if (oldInject) oldInject.remove();
-
-      const widget = document.getElementById("bp-web-widget");
-      if (widget) widget.remove();
-
-      // Clear memory bindings to guarantee fresh state rendering
-      delete window.botpressWebChat;
-      delete window.botpress;
-
-      // Pipeline re-injection
-      const script1 = document.createElement("script");
-      script1.id = SCRIPT1_ID;
-      script1.src = process.env.REACT_APP_BOTPRESS_INJECT_JS;
-      script1.async = true;
-      script1.onload = () => {
-        const script2 = document.createElement("script");
-        script2.id = SCRIPT2_ID;
-        script2.src = process.env.REACT_APP_BOTPRESS_CONFIG_JS;
-        script2.async = true;
-        script2.onload = () => {
-          // Aggressively attempt to close botpress window locally off-screen automatically after initialize
-          setTimeout(() => {
-            try {
-              window.postMessage({ action: "hide", type: "botpress-webchat" }, "*");
-              if (window.botpress) window.botpress.close?.();
-            } catch (e) { }
-          }, 800);
-        };
-        document.body.appendChild(script2);
-      };
-      document.body.appendChild(script1);
-    };
-
-    if (needsReinit || !initialized.current) {
-      loadBotpress();
-    }
-
-    initialized.current = true;
-
-  }, [user, loading]);
-
-  return <div id="botpress-webchat-container"></div>;
+          {/* Footer Input */}
+          <form className="chatbot-input-form" onSubmit={handleSend}>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about baggage rules, prohibited items..."
+              className="chatbot-input-field"
+              disabled={isLoading}
+              autoFocus
+            />
+            <button type="submit" className="chatbot-send-btn" disabled={isLoading}>
+              Send
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default BotpressChat;

@@ -20,7 +20,7 @@ import PackingAssistant from "./pages/PackingAssistant";
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthContext } from './context/AuthContext';
 import AccountPage from './pages/AccountPage';
-// import BotpressChat from "./pages/Botpresschat";
+import BotpressChat from "./pages/Botpresschat";
 import TripDetailsPage from "./pages/TripDetailsPage";
 
 
@@ -33,7 +33,7 @@ const App = () => {
       <ToastContainer position="top-right" autoClose={1500} closeButton={false} closeOnClick={false} pauseOnHover={false} />
       {/* Navbar component with logout prop */}
       <Navbar logout={logout} />
-      {/* <BotpressChat /> */}
+      <BotpressChat />
       {/* Define the routes */}
       <Routes>
         <Route

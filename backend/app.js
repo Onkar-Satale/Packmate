@@ -10,6 +10,8 @@ const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
 const tripRoutes = require('./routes/trips');
 const aiRoutes = require('./routes/ai');
+const aiController = require('./controllers/aiController');
+const { chatValidator } = require('./validators/aiValidator');
 
 const app = express();
 app.set("trust proxy", 1);
@@ -62,6 +64,7 @@ app.use("/api/login", apiLimiter);
 app.use("/api/register", apiLimiter);
 
 // 5. Mount API Routes
+app.post('/api/travel-chat', chatValidator, aiController.travelChat);
 app.use('/api', authRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/ai', aiRoutes);

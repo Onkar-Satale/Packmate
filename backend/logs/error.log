@@ -82,3 +82,11 @@
 {"level":"error","message":"401 - Invalid credentials - /api/login - POST - ::1","service":"packmate-api","timestamp":"2026-04-17 22:05:05"}
 {"level":"error","message":"401 - Invalid credentials - /api/login - POST - ::1","service":"packmate-api","timestamp":"2026-04-17 23:40:13"}
 {"level":"error","message":"401 - Invalid credentials - /api/login - POST - ::1","service":"packmate-api","timestamp":"2026-04-18 00:00:37"}
+{"level":"error","message":"401 - Invalid credentials - /api/login - POST - ::1","service":"packmate-api","timestamp":"2026-04-18 23:40:49"}
+{"level":"error","message":"500 - Failed to communicate with GenAI service - /api/ai/prefetch-weather - POST - ::1","service":"packmate-api","timestamp":"2026-04-18 23:42:20"}
+{"level":"error","message":"500 - Failed to communicate with GenAI service - /api/ai/prefetch-weather - POST - ::1","service":"packmate-api","timestamp":"2026-04-18 23:42:37"}
+{"level":"error","message":"401 - Invalid or expired token - /api/ai/prefetch-weather - POST - ::1","service":"packmate-api","timestamp":"2026-06-28 17:04:48"}
+{"level":"error","message":"400 - Invalid image detected. Please upload a clear photo of your own empty, open suitcase or travel bag for analysis. - /api/ai/analyze-suitcase - POST - ::1","service":"packmate-api","timestamp":"2026-06-28 17:11:32"}
+{"level":"error","message":"400 - Invalid image detected. Please upload a clear photo of your own empty, open suitcase or travel bag for analysis. - /api/ai/analyze-suitcase - POST - ::1","service":"packmate-api","timestamp":"2026-06-28 17:11:56"}
+{"level":"error","message":"400 - Invalid image detected. Please upload a clear photo of your own empty, open suitcase or travel bag for analysis. - /api/ai/analyze-suitcase - POST - ::1","service":"packmate-api","timestamp":"2026-06-28 17:33:36"}
+{"level":"error","message":"400 - Invalid image detected. Please upload a clear photo of your own empty, open suitcase or travel bag for analysis. - /api/ai/analyze-suitcase - POST - ::1","service":"packmate-api","timestamp":"2026-06-28 19:09:04"}

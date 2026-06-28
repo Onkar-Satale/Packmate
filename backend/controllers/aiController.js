@@ -57,3 +57,48 @@ exports.downloadPackingList = async (req, res, next) => {
     next(new ApiError(500, 'Failed to communicate with GenAI service'));
   }
 };
+
+exports.analyzeSuitcase = async (req, res, next) => {
+  try {
+    const response = await axios.post(`${genaiUrl}/analyze-suitcase`, req.body, {
+      headers: { 'x-api-key': genaiApiSecret }
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      return next(new ApiError(err.response.status, err.response.data.detail || 'GenAI Error'));
+    }
+    console.error("GenAI Communication Error:", err.message);
+    next(new ApiError(500, 'Failed to communicate with GenAI service'));
+  }
+};
+
+exports.chat = async (req, res, next) => {
+  try {
+    const response = await axios.post(`${genaiUrl}/chat`, req.body, {
+      headers: { 'x-api-key': genaiApiSecret }
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      return next(new ApiError(err.response.status, err.response.data.detail || 'GenAI Error'));
+    }
+    console.error("GenAI Communication Error:", err.message);
+    next(new ApiError(500, 'Failed to communicate with GenAI service'));
+  }
+};
+
+exports.travelChat = async (req, res, next) => {
+  try {
+    const response = await axios.post(`${genaiUrl}/travel-chat`, req.body, {
+      headers: { 'x-api-key': genaiApiSecret }
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      return next(new ApiError(err.response.status, err.response.data.detail || 'GenAI Error'));
+    }
+    console.error("GenAI Communication Error:", err.message);
+    next(new ApiError(500, 'Failed to communicate with GenAI service'));
+  }
+};

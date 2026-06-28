@@ -29,8 +29,26 @@ const downloadPackingListValidator = [
   validateRequest,
 ];
 
+const analyzeSuitcaseValidator = [
+  body("image_base64").notEmpty().withMessage("Image data is required").isString(),
+  body("packing_list").isArray().notEmpty().withMessage("packing_list must be a non-empty array"),
+  body("destination").notEmpty().isString(),
+  body("duration").isInt({ min: 1 }),
+  body("activities").notEmpty().isString(),
+  body("start_date").optional({ nullable: true }).isString(),
+  body("end_date").optional({ nullable: true }).isString(),
+  validateRequest,
+];
+
+const chatValidator = [
+  body("message").notEmpty().withMessage("Message is required").isString().withMessage("Message must be a string"),
+  validateRequest,
+];
+
 module.exports = {
   prefetchWeatherValidator,
   generatePackingListValidator,
   downloadPackingListValidator,
+  analyzeSuitcaseValidator,
+  chatValidator,
 };

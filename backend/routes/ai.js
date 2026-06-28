@@ -6,6 +6,8 @@ const {
   prefetchWeatherValidator,
   generatePackingListValidator,
   downloadPackingListValidator,
+  analyzeSuitcaseValidator,
+  chatValidator,
 } = require("../validators/aiValidator");
 const aiController = require("../controllers/aiController");
 
@@ -32,6 +34,18 @@ router.post(
   "/download-packing-list",
   downloadPackingListValidator,
   aiController.downloadPackingList
+);
+
+router.post(
+  "/analyze-suitcase",
+  analyzeSuitcaseValidator,
+  aiController.analyzeSuitcase
+);
+
+router.post(
+  "/chat",
+  chatValidator,
+  aiController.chat
 );
 
 module.exports = router;
