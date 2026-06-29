@@ -14,5 +14,4 @@ RUN pip install -r requirements.txt
 # Expose port
 EXPOSE 5000
 
-# Start the app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-5000}
