@@ -1,9 +1,6 @@
 import os
 import logging
-try:
-    from sentence_transformers import SentenceTransformer
-except ImportError:
-    SentenceTransformer = None
+import requests
 from groq import Groq
 from fastapi import HTTPException
 
@@ -15,41 +12,75 @@ logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHROMA_DB_DIR = os.path.join(BASE_DIR, "chroma_db")
 
-# Load HuggingFace model globally for embeddings to keep it ready in memory
-try:
-    if SentenceTransformer is not None:
-        logger.info("Initializing SentenceTransformer embedding model 'all-MiniLM-L6-v2'...")
+# Load HuggingFace model globally only if explicitly requested (e.g. for offline local development/ingest)
+USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", "false").lower() == "true"
+
+_embedding_model = None
+if USE_LOCAL_EMBEDDINGS:
+    try:
+        from sentence_transformers import SentenceTransformer
+        logger.info("Initializing local SentenceTransformer embedding model 'all-MiniLM-L6-v2'...")
         _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-    else:
-        logger.error("SentenceTransformer package is not installed. RAG embeddings will be unavailable.")
-        _embedding_model = None
-except Exception as e:
-    logger.error(f"Error loading SentenceTransformer: {e}")
-    _embedding_model = None
+    except ImportError:
+        logger.error("SentenceTransformer package is not installed. Local RAG embeddings will be unavailable.")
+    except Exception as e:
+        logger.error(f"Error loading local SentenceTransformer: {e}")
+else:
+    logger.info("USE_LOCAL_EMBEDDINGS is false. Local SentenceTransformer will not be loaded (using Hugging Face API instead).")
 
 def get_embedding_model():
     return _embedding_model
+
+def query_huggingface_embeddings(texts: list) -> list:
+    """
+    Query Hugging Face Inference API for text embeddings using all-MiniLM-L6-v2.
+    """
+    model_id = "sentence-transformers/all-MiniLM-L6-v2"
+    api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_id}"
+    
+    # Optional HF_TOKEN environment variable for higher limits
+    hf_token = os.getenv("HF_TOKEN")
+    headers = {}
+    if hf_token:
+        headers["Authorization"] = f"Bearer {hf_token}"
+        
+    payload = {
+        "inputs": texts,
+        "options": {"wait_for_model": True}
+    }
+    
+    response = requests.post(api_url, headers=headers, json=payload, timeout=15)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f"Hugging Face API returned status {response.status_code}: {response.text}")
 
 def embed_documents(texts: list) -> list:
     """
     Generates embeddings for a list of document chunks.
     """
     model = get_embedding_model()
-    if not model:
-        raise ValueError("Embedding model is not initialized.")
-    embeddings = model.encode(texts, show_progress_bar=False)
-    # Convert numpy array output to standard Python float list list
-    return [embedding.tolist() for embedding in embeddings]
+    if model:
+        embeddings = model.encode(texts, show_progress_bar=False)
+        return [embedding.tolist() for embedding in embeddings]
+    else:
+        logger.info("Using Hugging Face Inference API for document embeddings...")
+        return query_huggingface_embeddings(texts)
 
 def embed_query(query: str) -> list:
     """
     Generates an embedding for a single user query string.
     """
     model = get_embedding_model()
-    if not model:
-        raise ValueError("Embedding model is not initialized.")
-    embedding = model.encode(query, show_progress_bar=False)
-    return embedding.tolist()
+    if model:
+        embedding = model.encode(query, show_progress_bar=False)
+        return embedding.tolist()
+    else:
+        logger.info("Using Hugging Face Inference API for query embedding...")
+        res = query_huggingface_embeddings([query])
+        if isinstance(res, list) and len(res) > 0:
+            return res[0]
+        raise ValueError(f"Unexpected response format from Hugging Face API: {res}")
 
 def retrieve_relevant_chunks(query_text: str, n_results: int = 3) -> dict:
     """
