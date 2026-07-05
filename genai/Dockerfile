@@ -4,6 +4,9 @@ FROM python:3.12-slim
 # Set working directory inside the container
 WORKDIR /app
 
+# Set Hugging Face cache directory to a shared location within the container
+ENV HF_HOME=/app/.cache
+
 # Copy your genai contents into the container
 COPY . /app
 
