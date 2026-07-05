@@ -38,7 +38,7 @@ def get_collection():
     return _collection
 
 # Load HuggingFace model globally only if explicitly requested (e.g. for offline local development/ingest)
-USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", "false").lower() == "true"
+USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", "true").lower() == "true"
 
 _embedding_model = None
 if USE_LOCAL_EMBEDDINGS:

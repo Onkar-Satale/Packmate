@@ -63,8 +63,8 @@ const BotpressChat = () => {
     }
   };
 
-  // Hide the chatbot on auth pages (login & signup)
-  if (location.pathname === "/login" || location.pathname === "/signup") {
+  // Hide the chatbot on auth pages (login & signup) or if user is not logged in
+  if (location.pathname === "/login" || location.pathname === "/signup" || !user) {
     return null;
   }
 
