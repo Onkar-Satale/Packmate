@@ -41,6 +41,13 @@ ENV_PATH = BASE_DIR / ".env"
 # Load environment variables from the .env file into the os.environ dictionary
 load_dotenv(dotenv_path=ENV_PATH, override=True)
 
+# Pre-load RAG travel_chatbot globally at startup to pre-cache SentenceTransformer and Chroma DB
+try:
+    from knowledge_base.rag import travel_chatbot
+    logger.info("Successfully pre-loaded RAG model and ChromaDB cache at startup.")
+except Exception as e:
+    logger.error(f"Failed to pre-load RAG model at startup: {e}")
+
 # Retrieve API keys from environment variables
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -1034,7 +1041,6 @@ def api_chat(req: ChatRequest):
     retrieves context from vector store, queries LLM, and returns the response.
     """
     try:
-        from knowledge_base.rag import travel_chatbot
         return travel_chatbot(req.message)
     except Exception as e:
         logger.error(f"Error in api_chat: {e}")
@@ -1048,7 +1054,6 @@ def api_travel_chat(req: ChatRequest):
     using custom embeddings and generates completions via Groq.
     """
     try:
-        from knowledge_base.rag import travel_chatbot
         return travel_chatbot(req.message)
     except Exception as e:
         logger.error(f"Error in api_travel_chat: {e}")

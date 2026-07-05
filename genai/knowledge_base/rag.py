@@ -1,16 +1,41 @@
 import os
+import re
 import logging
 import requests
 from groq import Groq
 from fastapi import HTTPException
+from dotenv import load_dotenv
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Define paths
+# Define paths and load .env configuration
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_PATH = os.path.join(os.path.dirname(BASE_DIR), ".env")
+load_dotenv(dotenv_path=ENV_PATH)
+
 CHROMA_DB_DIR = os.path.join(BASE_DIR, "chroma_db")
+
+# Global ChromaDB client & collection cache to avoid connection overhead on every query
+_chroma_client = None
+_collection = None
+
+def get_collection():
+    global _chroma_client, _collection
+    if _collection is None:
+        try:
+            import chromadb
+            if os.path.exists(CHROMA_DB_DIR):
+                logger.info("Initializing global ChromaDB persistent client...")
+                _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
+                try:
+                    _collection = _chroma_client.get_collection(name="travel_assistant")
+                except Exception:
+                    logger.warning("travel_assistant collection does not exist in ChromaDB yet.")
+        except Exception as e:
+            logger.error(f"Failed to initialize ChromaDB collection: {e}")
+    return _collection
 
 # Load HuggingFace model globally only if explicitly requested (e.g. for offline local development/ingest)
 USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", "false").lower() == "true"
@@ -82,21 +107,14 @@ def embed_query(query: str) -> list:
             return res[0]
         raise ValueError(f"Unexpected response format from Hugging Face API: {res}")
 
-def retrieve_relevant_chunks(query_text: str, n_results: int = 3) -> dict:
+def retrieve_relevant_chunks(query_text: str, n_results: int = 7) -> dict:
     """
     Generates embedding for the query and retrieves matched document chunks from ChromaDB.
     """
     try:
-        import chromadb
-        if not os.path.exists(CHROMA_DB_DIR):
-            logger.warning(f"ChromaDB directory does not exist at {CHROMA_DB_DIR}")
-            return {}
-            
-        client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
-        try:
-            collection = client.get_collection(name="travel_assistant")
-        except Exception:
-            logger.warning("travel_assistant collection does not exist in ChromaDB yet.")
+        collection = get_collection()
+        if collection is None:
+            logger.warning("ChromaDB collection is not available.")
             return {}
             
         # 1. Embed query using our custom model
@@ -149,22 +167,14 @@ def generate_rag_response(prompt: str) -> str:
     """
     Calls Groq API to generate response based on prompt.
     """
-    # Resolve Groq API key from environment first, falling back to module import to prevent circular dependency issues
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        try:
-            from main import GROQ_API_KEY
-            api_key = GROQ_API_KEY
-        except Exception:
-            pass
-            
-    if not api_key:
-        logger.error("GROQ_API_KEY could not be loaded from environment or main module.")
+        logger.error("GROQ_API_KEY could not be loaded from environment.")
         raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured.")
         
     client = Groq(api_key=api_key)
-    model_name = "llama-3.3-70b-versatile"
-    fallback_model = "llama-3.1-8b-instant"
+    model_name = "llama-3.1-8b-instant"
+    fallback_model = "llama-3.3-70b-versatile"
     
     try:
         response = client.chat.completions.create(
@@ -194,7 +204,7 @@ def travel_chatbot(query: str) -> dict:
     refusal_phrase = "I'm sorry, I could not find relevant information in the knowledge base to answer your question."
     
     # 1. Retrieve most similar chunks
-    results = retrieve_relevant_chunks(query, n_results=3)
+    results = retrieve_relevant_chunks(query, n_results=7)
     chunks = results.get("documents", [[]])[0] if results.get("documents") else []
     metadatas = results.get("metadatas", [[]])[0] if results.get("metadatas") else []
     

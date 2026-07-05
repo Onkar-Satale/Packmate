@@ -3,6 +3,7 @@ import glob
 import json
 import logging
 from pypdf import PdfReader
+from dotenv import load_dotenv
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -10,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_PATH = os.path.join(os.path.dirname(BASE_DIR), ".env")
+load_dotenv(dotenv_path=ENV_PATH)
+
 PDFS_DIR = os.path.join(BASE_DIR, "pdfs")
 CHROMA_DB_DIR = os.path.join(BASE_DIR, "chroma_db")
 MANIFEST_PATH = os.path.join(BASE_DIR, "ingest_manifest.json")
