@@ -17,6 +17,9 @@ RUN pip install -r requirements.txt
 # Pre-download the SentenceTransformer model to cache it in the image
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
+# Ensure all files inside /app (including cached models and ChromaDB) are readable and writable by any non-root user
+RUN chmod -R 777 /app
+
 # Expose port
 EXPOSE 5000
 
