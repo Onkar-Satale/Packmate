@@ -43,7 +43,8 @@ load_dotenv(dotenv_path=ENV_PATH, override=True)
 
 # Pre-load RAG travel_chatbot globally at startup to pre-cache SentenceTransformer and Chroma DB
 try:
-    from knowledge_base.rag import travel_chatbot
+    from knowledge_base.rag import travel_chatbot, get_collection
+    get_collection()
     logger.info("Successfully pre-loaded RAG model and ChromaDB cache at startup.")
 except Exception as e:
     logger.error(f"Failed to pre-load RAG model at startup: {e}")
