@@ -41,13 +41,19 @@ ENV_PATH = BASE_DIR / ".env"
 # Load environment variables from the .env file into the os.environ dictionary
 load_dotenv(dotenv_path=ENV_PATH, override=True)
 
-# Pre-load RAG travel_chatbot globally at startup to pre-cache SentenceTransformer and Chroma DB
-try:
-    from knowledge_base.rag import travel_chatbot, get_collection
-    get_collection()
-    logger.info("Successfully pre-loaded RAG model and ChromaDB cache at startup.")
-except Exception as e:
-    logger.error(f"Failed to pre-load RAG model at startup: {e}")
+# Pre-load RAG travel_chatbot in a background thread to prevent blocking Uvicorn's port binding.
+# This ensures that the application starts up instantly and binds to the port, preventing Render deployment timeouts.
+import threading
+def pre_load_rag():
+    try:
+        logger.info("Starting background pre-loading of RAG model and ChromaDB...")
+        from knowledge_base.rag import travel_chatbot, get_collection
+        get_collection()
+        logger.info("Successfully pre-loaded RAG model and ChromaDB cache in the background.")
+    except Exception as e:
+        logger.error(f"Failed to pre-load RAG model in background: {e}")
+
+threading.Thread(target=pre_load_rag, daemon=True).start()
 
 # Retrieve API keys from environment variables
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -1042,6 +1048,7 @@ def api_chat(req: ChatRequest):
     retrieves context from vector store, queries LLM, and returns the response.
     """
     try:
+        from knowledge_base.rag import travel_chatbot
         return travel_chatbot(req.message)
     except Exception as e:
         logger.error(f"Error in api_chat: {e}")
@@ -1055,6 +1062,7 @@ def api_travel_chat(req: ChatRequest):
     using custom embeddings and generates completions via Groq.
     """
     try:
+        from knowledge_base.rag import travel_chatbot
         return travel_chatbot(req.message)
     except Exception as e:
         logger.error(f"Error in api_travel_chat: {e}")
