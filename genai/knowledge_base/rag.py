@@ -17,24 +17,29 @@ load_dotenv(dotenv_path=ENV_PATH)
 
 CHROMA_DB_DIR = os.path.join(BASE_DIR, "chroma_db")
 
+import threading
+
 # Global ChromaDB client & collection cache to avoid connection overhead on every query
 _chroma_client = None
 _collection = None
+_init_lock = threading.Lock()
 
 def get_collection():
     global _chroma_client, _collection
     if _collection is None:
-        try:
-            import chromadb
-            if os.path.exists(CHROMA_DB_DIR):
-                logger.info("Initializing global ChromaDB persistent client...")
-                _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
+        with _init_lock:
+            if _collection is None:
                 try:
-                    _collection = _chroma_client.get_collection(name="travel_assistant")
-                except Exception:
-                    logger.warning("travel_assistant collection does not exist in ChromaDB yet.")
-        except Exception as e:
-            logger.error(f"Failed to initialize ChromaDB collection: {e}")
+                    import chromadb
+                    if os.path.exists(CHROMA_DB_DIR):
+                        logger.info("Initializing global ChromaDB persistent client...")
+                        _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
+                        try:
+                            _collection = _chroma_client.get_collection(name="travel_assistant")
+                        except Exception:
+                            logger.warning("travel_assistant collection does not exist in ChromaDB yet.")
+                except Exception as e:
+                    logger.error(f"Failed to initialize ChromaDB collection: {e}")
     return _collection
 
 # Check if we are running on Render or locally
@@ -43,6 +48,11 @@ ON_RENDER = os.getenv("RENDER", "false").lower() == "true"
 # Default to local embeddings locally, but use Hugging Face API on Render to stay within 512MB RAM limit
 USE_LOCAL_EMBEDDINGS_DEFAULT = "false" if ON_RENDER else "true"
 USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", USE_LOCAL_EMBEDDINGS_DEFAULT).lower() == "true"
+
+# CRITICAL: Force false on Render to prevent OOM crash (RAM limit 512MB)
+if ON_RENDER:
+    logger.info("Running on Render. Forcing USE_LOCAL_EMBEDDINGS to False to prevent OOM crash.")
+    USE_LOCAL_EMBEDDINGS = False
 
 _embedding_model = None
 if USE_LOCAL_EMBEDDINGS:
@@ -74,8 +84,7 @@ def query_huggingface_embeddings(texts: list) -> list:
             # client.feature_extraction returns embeddings (numpy array or list of floats)
             emb = client.feature_extraction(
                 text=text,
-                model="sentence-transformers/all-MiniLM-L6-v2",
-                timeout=10
+                model="sentence-transformers/all-MiniLM-L6-v2"
             )
             # Convert to list if it is a numpy array
             if hasattr(emb, "tolist"):
