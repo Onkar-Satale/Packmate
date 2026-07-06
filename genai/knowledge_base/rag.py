@@ -37,8 +37,12 @@ def get_collection():
             logger.error(f"Failed to initialize ChromaDB collection: {e}")
     return _collection
 
-# Load HuggingFace model globally only if explicitly requested (e.g. for offline local development/ingest)
-USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", "true").lower() == "true"
+# Check if we are running on Render or locally
+ON_RENDER = os.getenv("RENDER", "false").lower() == "true"
+
+# Default to local embeddings locally, but use Hugging Face API on Render to stay within 512MB RAM limit
+USE_LOCAL_EMBEDDINGS_DEFAULT = "false" if ON_RENDER else "true"
+USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", USE_LOCAL_EMBEDDINGS_DEFAULT).lower() == "true"
 
 _embedding_model = None
 if USE_LOCAL_EMBEDDINGS:
@@ -58,12 +62,11 @@ def get_embedding_model():
 
 def query_huggingface_embeddings(texts: list) -> list:
     """
-    Query Hugging Face Inference API for text embeddings using all-MiniLM-L6-v2.
+    Query Hugging Face Inference API for text embeddings using all-MiniLM-L6-v2 with loading/retry logic.
     """
     model_id = "sentence-transformers/all-MiniLM-L6-v2"
     api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_id}"
     
-    # Optional HF_TOKEN environment variable for higher limits
     hf_token = os.getenv("HF_TOKEN")
     headers = {}
     if hf_token:
@@ -74,11 +77,28 @@ def query_huggingface_embeddings(texts: list) -> list:
         "options": {"wait_for_model": True}
     }
     
-    response = requests.post(api_url, headers=headers, json=payload, timeout=15)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        raise Exception(f"Hugging Face API returned status {response.status_code}: {response.text}")
+    import time
+    for attempt in range(3):
+        try:
+            response = requests.post(api_url, headers=headers, json=payload, timeout=20)
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 503:
+                try:
+                    data = response.json()
+                    est_time = data.get("estimated_time", 5)
+                    logger.warning(f"HuggingFace model loading. Waiting {est_time:.1f}s before retry (attempt {attempt+1}/3)...")
+                    time.sleep(est_time)
+                except Exception:
+                    time.sleep(5)
+            else:
+                logger.error(f"HuggingFace API returned status {response.status_code}: {response.text}")
+                time.sleep(2)
+        except Exception as e:
+            logger.error(f"HuggingFace API request exception (attempt {attempt+1}/3): {e}")
+            time.sleep(2)
+            
+    raise Exception("Failed to retrieve embeddings from Hugging Face Inference API after retries.")
 
 def embed_documents(texts: list) -> list:
     """
