@@ -67,14 +67,15 @@ def query_huggingface_embeddings(texts: list) -> list:
     try:
         from huggingface_hub import InferenceClient
         hf_token = os.getenv("HF_TOKEN")
-        client = InferenceClient(api_key=hf_token)
+        client = InferenceClient(api_key=hf_token, timeout=10)
         
         embeddings = []
         for text in texts:
             # client.feature_extraction returns embeddings (numpy array or list of floats)
             emb = client.feature_extraction(
                 text=text,
-                model="sentence-transformers/all-MiniLM-L6-v2"
+                model="sentence-transformers/all-MiniLM-L6-v2",
+                timeout=10
             )
             # Convert to list if it is a numpy array
             if hasattr(emb, "tolist"):
