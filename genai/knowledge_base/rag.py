@@ -62,43 +62,28 @@ def get_embedding_model():
 
 def query_huggingface_embeddings(texts: list) -> list:
     """
-    Query Hugging Face Inference API for text embeddings using all-MiniLM-L6-v2 with loading/retry logic.
+    Query Hugging Face Inference API for text embeddings using all-MiniLM-L6-v2 via official InferenceClient.
     """
-    model_id = "sentence-transformers/all-MiniLM-L6-v2"
-    api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_id}"
-    
-    hf_token = os.getenv("HF_TOKEN")
-    headers = {}
-    if hf_token:
-        headers["Authorization"] = f"Bearer {hf_token}"
+    try:
+        from huggingface_hub import InferenceClient
+        hf_token = os.getenv("HF_TOKEN")
+        client = InferenceClient(api_key=hf_token)
         
-    payload = {
-        "inputs": texts,
-        "options": {"wait_for_model": True}
-    }
-    
-    import time
-    for attempt in range(3):
-        try:
-            response = requests.post(api_url, headers=headers, json=payload, timeout=20)
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 503:
-                try:
-                    data = response.json()
-                    est_time = data.get("estimated_time", 5)
-                    logger.warning(f"HuggingFace model loading. Waiting {est_time:.1f}s before retry (attempt {attempt+1}/3)...")
-                    time.sleep(est_time)
-                except Exception:
-                    time.sleep(5)
-            else:
-                logger.error(f"HuggingFace API returned status {response.status_code}: {response.text}")
-                time.sleep(2)
-        except Exception as e:
-            logger.error(f"HuggingFace API request exception (attempt {attempt+1}/3): {e}")
-            time.sleep(2)
-            
-    raise Exception("Failed to retrieve embeddings from Hugging Face Inference API after retries.")
+        embeddings = []
+        for text in texts:
+            # client.feature_extraction returns embeddings (numpy array or list of floats)
+            emb = client.feature_extraction(
+                text=text,
+                model="sentence-transformers/all-MiniLM-L6-v2"
+            )
+            # Convert to list if it is a numpy array
+            if hasattr(emb, "tolist"):
+                emb = emb.tolist()
+            embeddings.append(emb)
+        return embeddings
+    except Exception as e:
+        logger.error(f"InferenceClient failed to retrieve embeddings: {e}")
+        raise e
 
 def embed_documents(texts: list) -> list:
     """
