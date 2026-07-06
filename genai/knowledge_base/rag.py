@@ -49,10 +49,6 @@ ON_RENDER = os.getenv("RENDER", "false").lower() == "true"
 USE_LOCAL_EMBEDDINGS_DEFAULT = "false" if ON_RENDER else "true"
 USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", USE_LOCAL_EMBEDDINGS_DEFAULT).lower() == "true"
 
-# CRITICAL: Force false on Render to prevent OOM crash (RAM limit 512MB)
-if ON_RENDER:
-    logger.info("Running on Render. Forcing USE_LOCAL_EMBEDDINGS to False to prevent OOM crash.")
-    USE_LOCAL_EMBEDDINGS = False
 
 _embedding_model = None
 if USE_LOCAL_EMBEDDINGS:
