@@ -20,7 +20,10 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 # Ensure all files inside /app (including cached models and ChromaDB) are readable and writable by any non-root user
 RUN chmod -R 777 /app
 
-# Expose port
-EXPOSE 5000
+# Set python log buffering to off so logs stream immediately
+ENV PYTHONUNBUFFERED=1
 
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-5000}
+# Expose port
+EXPOSE 10000
+
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}
