@@ -21,7 +21,10 @@ const aiLimiter = rateLimit({
 // We enforce authentication for all AI routes, explicitly protecting our LLM infrastructure
 router.use(authMiddleware);
 
-router.post("/prefetch-weather", prefetchWeatherValidator, aiController.prefetchWeather);
+router.post(
+  "/prefetch-weather",
+  prefetchWeatherValidator,
+  aiController.prefetchWeather);
 
 router.post(
   "/generate-packing-list",
