@@ -68,28 +68,74 @@ def get_embedding_model():
 
 def query_huggingface_embeddings(texts: list) -> list:
     """
-    Query Hugging Face Inference API for text embeddings using all-MiniLM-L6-v2 via official InferenceClient.
+    Query Hugging Face Inference API for text embeddings using all-MiniLM-L6-v2 via requests.
+    This bypasses the InferenceClient provider permissions issue and supports batching.
     """
-    try:
-        from huggingface_hub import InferenceClient
-        hf_token = os.getenv("HF_TOKEN")
-        client = InferenceClient(api_key=hf_token, timeout=10)
+    model_id = "sentence-transformers/all-MiniLM-L6-v2"
+    api_url = f"https://api-inference.huggingface.co/models/{model_id}"
+    
+    hf_token = os.getenv("HF_TOKEN")
+    headers = {}
+    if hf_token:
+        headers["Authorization"] = f"Bearer {hf_token}"
         
-        embeddings = []
-        for text in texts:
-            # client.feature_extraction returns embeddings (numpy array or list of floats)
-            emb = client.feature_extraction(
-                text=text,
-                model="sentence-transformers/all-MiniLM-L6-v2"
-            )
-            # Convert to list if it is a numpy array
-            if hasattr(emb, "tolist"):
-                emb = emb.tolist()
-            embeddings.append(emb)
-        return embeddings
-    except Exception as e:
-        logger.error(f"InferenceClient failed to retrieve embeddings: {e}")
-        raise e
+    logger.info(f"Querying Hugging Face Inference API for {len(texts)} texts...")
+    
+    import time
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(api_url, headers=headers, json={"inputs": texts}, timeout=20)
+            
+            # Check for model loading (503 Service Unavailable / estimated_time in JSON)
+            if response.status_code == 503:
+                try:
+                    res_json = response.json()
+                    if isinstance(res_json, dict) and "estimated_time" in res_json:
+                        wait_time = min(res_json["estimated_time"], 10)
+                        logger.warning(f"Hugging Face model is loading. Waiting {wait_time}s (attempt {attempt+1}/{max_retries})...")
+                        time.sleep(wait_time)
+                        continue
+                except Exception:
+                    pass
+                time.sleep(5)
+                continue
+                
+            response.raise_for_status()
+            embeddings = response.json()
+            
+            # The expected output for sentence-transformers is a 2D list: [[float, ...], [float, ...]]
+            if isinstance(embeddings, list) and len(embeddings) > 0:
+                first = embeddings[0]
+                if isinstance(first, list) and len(first) > 0:
+                    # Check if it's a 3D list (sequence embeddings instead of pooled embeddings)
+                    if isinstance(first[0], list):
+                        logger.warning("Hugging Face API returned sequence-level embeddings. Performing mean pooling...")
+                        pooled_embeddings = []
+                        for seq in embeddings:
+                            num_tokens = len(seq)
+                            if num_tokens == 0:
+                                pooled_embeddings.append([0.0] * 384)
+                                continue
+                            dim = len(seq[0])
+                            mean_emb = [0.0] * dim
+                            for token_emb in seq:
+                                for idx, val in enumerate(token_emb):
+                                    mean_emb[idx] += val
+                            mean_emb = [val / num_tokens for val in mean_emb]
+                            pooled_embeddings.append(mean_emb)
+                        return pooled_embeddings
+                    else:
+                        # It is a 2D list, which is the correct format
+                        return embeddings
+                        
+            raise ValueError(f"Unexpected response format from Hugging Face API: {embeddings}")
+            
+        except Exception as e:
+            logger.error(f"Attempt {attempt+1} failed querying Hugging Face API: {e}")
+            if attempt == max_retries - 1:
+                raise e
+            time.sleep(3)
 
 def embed_documents(texts: list) -> list:
     """
