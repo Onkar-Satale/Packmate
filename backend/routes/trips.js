@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middleware/auth");
+const auth = require("../middlewares/auth");
 const { upload } = require("../config/cloudinary");
 const tripController = require("../controllers/tripController");
 const { tripValidator, updateTripValidator, tripNotesValidator } = require("../validators/tripValidator");

@@ -102,3 +102,19 @@ exports.travelChat = async (req, res, next) => {
     next(new ApiError(500, 'Failed to communicate with GenAI service'));
   }
 };
+
+exports.debugRag = async (req, res, next) => {
+  try {
+    const response = await axios.get(`${genaiUrl}/debug-rag`, {
+      headers: { 'x-api-key': genaiApiSecret }
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      return next(new ApiError(err.response.status, err.response.data.detail || 'GenAI Error'));
+    }
+    console.error("GenAI Communication Error:", err.message);
+    next(new ApiError(500, 'Failed to communicate with GenAI service'));
+  }
+};
+
