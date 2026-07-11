@@ -1,5 +1,5 @@
-const authService = require("../services/authService");
-const ApiError = require("../utils/ApiError");
+import authService from '../services/authService.js';
+import ApiError from '../utils/ApiError.js';
 
 const setRefreshCookie = (res, token) => {
   // Use SameSite=Lax for dev (supports localhost:3000 to localhost:5000)
@@ -13,7 +13,7 @@ const setRefreshCookie = (res, token) => {
   });
 };
 
-exports.register = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
     const { email, password, firstName, lastName } = req.body;
     
@@ -41,7 +41,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -71,7 +71,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.refreshToken = async (req, res, next) => {
+export const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
     if (!refreshToken) return res.status(401).json({ success: false, message: "No refresh token available" });
@@ -90,7 +90,7 @@ exports.refreshToken = async (req, res, next) => {
   }
 };
 
-exports.logout = async (req, res, next) => {
+export const logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
     if (refreshToken) {
@@ -108,7 +108,7 @@ exports.logout = async (req, res, next) => {
   }
 };
 
-exports.deleteAccount = async (req, res, next) => {
+export const deleteAccount = async (req, res, next) => {
   try {
     const userId = req.userId; // auth middleware sets req.userId
     await authService.deleteUser(userId);

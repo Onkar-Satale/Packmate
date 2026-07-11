@@ -1,6 +1,6 @@
-const User = require("../models/User");
-const Trip = require("../models/Trip");
-const jwt = require("jsonwebtoken");
+import User from '../models/User.js';
+import Trip from '../models/Trip.js';
+import jwt from 'jsonwebtoken';
 
 class AuthService {
   async findUserByEmail(email) {
@@ -61,4 +61,4 @@ class AuthService {
   }
 }
 
-module.exports = new AuthService();
+export default new AuthService();

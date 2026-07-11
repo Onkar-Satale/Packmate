@@ -1,5 +1,5 @@
-const { body } = require("express-validator");
-const { validateRequest } = require("./authValidator");
+import { body } from 'express-validator';
+import { validateRequest } from './authValidator.js';
 
 const tripValidator = [
   body()
@@ -35,7 +35,7 @@ const tripNotesValidator = [
   validateRequest
 ];
 
-module.exports = {
+export {
   tripValidator,
   updateTripValidator,
   tripNotesValidator

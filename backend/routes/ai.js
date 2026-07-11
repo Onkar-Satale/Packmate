@@ -1,15 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const rateLimit = require("express-rate-limit");
-const authMiddleware = require("../middlewares/auth");
-const {
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import authMiddleware from '../middlewares/auth.js';
+import {
   prefetchWeatherValidator,
   generatePackingListValidator,
   downloadPackingListValidator,
   analyzeSuitcaseValidator,
   chatValidator,
-} = require("../validators/aiValidator");
-const aiController = require("../controllers/aiController");
+} from '../validators/aiValidator.js';
+import * as aiController from '../controllers/aiController.js';
+
+const router = express.Router();
 
 // Extremely strict rate limiting for AI generation to prevent abuse, similar to what Python had
 const aiLimiter = rateLimit({
@@ -51,4 +52,4 @@ router.post(
   aiController.chat
 );
 
-module.exports = router;
+export default router;

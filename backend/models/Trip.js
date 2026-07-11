@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const TravelerSchema = new mongoose.Schema({
   name: { type: String, trim: true },
@@ -74,4 +74,4 @@ const TripSchema = new mongoose.Schema({
 // Explicit index for fast queries by userId
 TripSchema.index({ userId: 1 });
 
-module.exports = mongoose.model("Trip", TripSchema);
+export default mongoose.model("Trip", TripSchema);

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 // Define User schema
 const userSchema = new mongoose.Schema({
@@ -56,4 +56,4 @@ userSchema.methods.toJSON = function() {
 
 // Note: Do NOT add `userSchema.index({ email: 1 })` here because unique: true already creates it!
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

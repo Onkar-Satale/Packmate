@@ -1,9 +1,10 @@
-const express = require("express");
+import express from 'express';
+import auth from '../middlewares/auth.js';
+import { upload } from '../config/cloudinary.js';
+import * as tripController from '../controllers/tripController.js';
+import { tripValidator, updateTripValidator, tripNotesValidator } from '../validators/tripValidator.js';
+
 const router = express.Router();
-const auth = require("../middlewares/auth");
-const { upload } = require("../config/cloudinary");
-const tripController = require("../controllers/tripController");
-const { tripValidator, updateTripValidator, tripNotesValidator } = require("../validators/tripValidator");
 
 router.post("/", auth, tripValidator, tripController.createTrip);
 router.get("/", auth, tripController.getUserTrips);
@@ -13,4 +14,4 @@ router.delete("/:id", auth, tripController.deleteTrip);
 router.put("/:id/upload", auth, upload.array("photos"), tripController.uploadPhotos);
 router.put("/:id/notes", auth, tripNotesValidator, tripController.updateNotes);
 
-module.exports = router;
+export default router;

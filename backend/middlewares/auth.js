@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
-const ApiError = require("../utils/ApiError");
+import jwt from 'jsonwebtoken';
+import ApiError from '../utils/ApiError.js';
 
-module.exports = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -22,4 +22,6 @@ module.exports = (req, res, next) => {
     next(new ApiError(401, "Invalid or expired token"));
   }
 };
+
+export default authMiddleware;
 

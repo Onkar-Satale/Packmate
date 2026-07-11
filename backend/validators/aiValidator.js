@@ -1,5 +1,5 @@
-const { body } = require("express-validator");  // express-validator-Library to validate request data
-const { validateRequest } = require("./authValidator");
+import { body } from 'express-validator';
+import { validateRequest } from './authValidator.js';
 
 const prefetchWeatherValidator = [
   body("location").notEmpty().withMessage("Location is required").isString(),
@@ -45,7 +45,7 @@ const chatValidator = [
   validateRequest,
 ];
 
-module.exports = {
+export {
   prefetchWeatherValidator,
   generatePackingListValidator,
   downloadPackingListValidator,

@@ -1,5 +1,5 @@
-const Trip = require("../models/Trip");
-const ApiError = require("../utils/ApiError");
+import Trip from '../models/Trip.js';
+import ApiError from '../utils/ApiError.js';
 
 // Map frontend `peoples` backwards to DB `travelers` and vice versa
 const formatIncomingData = (data) => {
@@ -107,4 +107,4 @@ class TripService {
   }
 }
 
-module.exports = new TripService();
+export default new TripService();

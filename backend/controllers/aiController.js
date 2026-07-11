@@ -1,10 +1,10 @@
-const axios = require('axios');
-const ApiError = require('../utils/ApiError');
+import axios from 'axios';
+import ApiError from '../utils/ApiError.js';
 
 const genaiUrl = process.env.GENAI_SERVICE_URL;
 const genaiApiSecret = process.env.GENAI_API_SECRET;
 
-exports.prefetchWeather = async (req, res, next) => {
+export const prefetchWeather = async (req, res, next) => {
   try {
     const response = await axios.post(`${genaiUrl}/prefetch-weather`, req.body, {
       headers: { 'x-api-key': genaiApiSecret }
@@ -20,7 +20,7 @@ exports.prefetchWeather = async (req, res, next) => {
   }
 };
 
-exports.generatePackingList = async (req, res, next) => {
+export const generatePackingList = async (req, res, next) => {
   try {
     const response = await axios.post(`${genaiUrl}/generate-packing-list`, req.body, {
       headers: { 'x-api-key': genaiApiSecret }
@@ -35,7 +35,7 @@ exports.generatePackingList = async (req, res, next) => {
   }
 };
 
-exports.downloadPackingList = async (req, res, next) => {
+export const downloadPackingList = async (req, res, next) => {
   try {
     const response = await axios.post(`${genaiUrl}/download-packing-list`, req.body, {
       headers: { 'x-api-key': genaiApiSecret },
@@ -58,7 +58,7 @@ exports.downloadPackingList = async (req, res, next) => {
   }
 };
 
-exports.analyzeSuitcase = async (req, res, next) => {
+export const analyzeSuitcase = async (req, res, next) => {
   try {
     const response = await axios.post(`${genaiUrl}/analyze-suitcase`, req.body, {
       headers: { 'x-api-key': genaiApiSecret }
@@ -73,7 +73,7 @@ exports.analyzeSuitcase = async (req, res, next) => {
   }
 };
 
-exports.chat = async (req, res, next) => {
+export const chat = async (req, res, next) => {
   try {
     const response = await axios.post(`${genaiUrl}/chat`, req.body, {
       headers: { 'x-api-key': genaiApiSecret }
@@ -88,7 +88,7 @@ exports.chat = async (req, res, next) => {
   }
 };
 
-exports.travelChat = async (req, res, next) => {
+export const travelChat = async (req, res, next) => {
   try {
     const response = await axios.post(`${genaiUrl}/travel-chat`, req.body, {
       headers: { 'x-api-key': genaiApiSecret }
@@ -103,7 +103,7 @@ exports.travelChat = async (req, res, next) => {
   }
 };
 
-exports.debugRag = async (req, res, next) => {
+export const debugRag = async (req, res, next) => {
   try {
     const response = await axios.get(`${genaiUrl}/debug-rag`, {
       headers: { 'x-api-key': genaiApiSecret }

@@ -1,6 +1,6 @@
-const tripService = require("../services/tripService");
+import tripService from '../services/tripService.js';
 
-exports.createTrip = async (req, res, next) => {
+export const createTrip = async (req, res, next) => {
   try {
     const trip = await tripService.createTrip(req.userId, req.body);
     res.status(201).json({ success: true, data: trip });
@@ -9,7 +9,7 @@ exports.createTrip = async (req, res, next) => {
   }
 };
 
-exports.getUserTrips = async (req, res, next) => {
+export const getUserTrips = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
@@ -21,7 +21,7 @@ exports.getUserTrips = async (req, res, next) => {
   }
 };
 
-exports.getTrip = async (req, res, next) => {
+export const getTrip = async (req, res, next) => {
   try {
     const trip = await tripService.getTripById(req.params.id, req.userId);
     res.json({ success: true, data: trip });
@@ -30,7 +30,7 @@ exports.getTrip = async (req, res, next) => {
   }
 };
 
-exports.updateTrip = async (req, res, next) => {
+export const updateTrip = async (req, res, next) => {
   try {
     const trip = await tripService.updateTrip(req.params.id, req.userId, req.body);
     res.json({ success: true, data: trip });
@@ -39,7 +39,7 @@ exports.updateTrip = async (req, res, next) => {
   }
 };
 
-exports.deleteTrip = async (req, res, next) => {
+export const deleteTrip = async (req, res, next) => {
   try {
     await tripService.deleteTrip(req.params.id, req.userId);
     res.json({ success: true, message: "Trip deleted successfully" });
@@ -48,7 +48,7 @@ exports.deleteTrip = async (req, res, next) => {
   }
 };
 
-exports.uploadPhotos = async (req, res, next) => {
+export const uploadPhotos = async (req, res, next) => {
   try {
     const uploadedFiles = req.files.map((file) => file.path);
     const photos = await tripService.uploadPhotos(req.params.id, req.userId, uploadedFiles);
@@ -58,7 +58,7 @@ exports.uploadPhotos = async (req, res, next) => {
   }
 };
 
-exports.updateNotes = async (req, res, next) => {
+export const updateNotes = async (req, res, next) => {
   try {
     const notes = await tripService.updateNotes(req.params.id, req.userId, req.body.notes);
     res.json({ success: true, data: notes });

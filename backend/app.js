@@ -1,17 +1,23 @@
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const cors = require('cors');
-const morgan = require('morgan');
-const helmet = require('helmet');
-const cookieParser = require('cookie-parser');
-const path = require("path");
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import cors from 'cors';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
-const errorHandler = require('./middlewares/errorHandler');
-const authRoutes = require('./routes/auth');
-const tripRoutes = require('./routes/trips');
-const aiRoutes = require('./routes/ai');
-const aiController = require('./controllers/aiController');
-const { chatValidator } = require('./validators/aiValidator');
+import errorHandler from './middlewares/errorHandler.js';
+import authRoutes from './routes/auth.js';
+import tripRoutes from './routes/trips.js';
+import aiRoutes from './routes/ai.js';
+import * as aiController from './controllers/aiController.js';
+import { chatValidator } from './validators/aiValidator.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.set("trust proxy", 1);
@@ -42,8 +48,7 @@ app.use(cookieParser()); // Enable HTTP-only cookie parsing
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // OpenAPI / Swagger Documentation
-const swaggerUi = require("swagger-ui-express");
-const YAML = require("yamljs");
+
 try {
   const swaggerDocument = YAML.load(path.join(__dirname, "docs/swagger.yaml"));
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -78,4 +83,4 @@ app.get('/', (req, res) => {
 // 6. Centralized Error Pipeline
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

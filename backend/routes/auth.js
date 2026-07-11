@@ -1,7 +1,7 @@
-const express = require("express");
-const { register, login, refreshToken, logout, deleteAccount } = require("../controllers/authController");
-const { registerValidator, loginValidator } = require("../validators/authValidator");
-const auth = require("../middlewares/auth");
+import express from 'express';
+import { register, login, refreshToken, logout, deleteAccount } from '../controllers/authController.js';
+import { registerValidator, loginValidator } from '../validators/authValidator.js';
+import auth from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -11,4 +11,4 @@ router.post("/refresh-token", refreshToken);
 router.post("/logout", logout);
 router.delete("/delete-account", auth, deleteAccount);
 
-module.exports = router;
+export default router;
