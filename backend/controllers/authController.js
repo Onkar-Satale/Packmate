@@ -74,19 +74,20 @@ export const login = async (req, res, next) => {
 export const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
-    if (!refreshToken) return res.status(401).json({ success: false, message: "No refresh token available" });
+    if (!refreshToken) {
+      return next(new ApiError(401, "No refresh token available"));
+    }
     
     const decoded = authService.verifyRefreshToken(refreshToken);
     const user = await authService.findUserWithRefreshToken(decoded.userId);
     if (!user || user.refreshToken !== refreshToken) {
-      return res.status(401).json({ success: false, message: "Invalid refresh token" });
+      return next(new ApiError(401, "Invalid refresh token"));
     }
     
     const token = authService.generateAuthToken(user._id);
     res.json({ success: true, data: { token } });
   } catch(err) {
-    console.error("Refresh Token Error:", err);
-    return res.status(401).json({ success: false, message: "Refresh token expired or invalid" });
+    return next(new ApiError(401, "Refresh token expired or invalid", true, err.stack));
   }
 };
 

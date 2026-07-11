@@ -8,8 +8,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
-
 import errorHandler from './middlewares/errorHandler.js';
+import logger from './utils/logger.js';
 import authRoutes from './routes/auth.js';
 import tripRoutes from './routes/trips.js';
 import aiRoutes from './routes/ai.js';
@@ -34,7 +34,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
       callback(null, true);
     } else {
-      console.warn('CORS blocked this Origin:', origin);
+      logger.warn(`CORS blocked this Origin: ${origin}`);
       callback(new Error('CORS blocked origin'), false);
     }
   },
@@ -53,20 +53,39 @@ try {
   const swaggerDocument = YAML.load(path.join(__dirname, "docs/swagger.yaml"));
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } catch (e) {
-  console.error("Failed to load swagger.yaml", e);
+  logger.error("Failed to load swagger.yaml", e);
 }
 
 // 3. Activity Logging
 app.use(morgan("dev"));
 
 // 4. Rate Limiting
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 mins
-  max: 100,
-  message: { success: false, message: "Too many requests, please try again later." }
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 30, 
+  standardHeaders: true, 
+  legacyHeaders: false, 
+  message: {
+    success: false,
+    error: 'Too many authentication attempts from this IP, please try again after 15 minutes',
+  },
 });
-app.use("/api/login", apiLimiter);
-app.use("/api/register", apiLimiter);
+
+const apiRateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, 
+  max: 200, 
+  standardHeaders: true, 
+  legacyHeaders: false, 
+  message: {
+    success: false,
+    error: 'Too many requests from this IP, please try again after a minute',
+  },
+});
+
+// Apply rate limiters
+app.use("/api/login", authRateLimiter);
+app.use("/api/register", authRateLimiter);
+app.use("/api", apiRateLimiter);
 
 // 5. Mount API Routes
 app.post('/api/travel-chat', chatValidator, aiController.travelChat);

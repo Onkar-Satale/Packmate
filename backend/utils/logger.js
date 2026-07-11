@@ -8,10 +8,8 @@ const __dirname = path.dirname(__filename);
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
-    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     winston.format.errors({ stack: true }),
-    winston.format.splat(),
-    winston.format.json()
+    winston.format.splat()
   ),
   defaultMeta: { service: "packmate-api" },
   transports: [
@@ -19,12 +17,20 @@ const logger = winston.createLogger({
       filename: path.join(__dirname, "../logs/error.log"), 
       level: "error",
       maxsize: 5 * 1024 * 1024, // 5MB limit per file
-      maxFiles: 5 // Keep maximum 5 rotated files
+      maxFiles: 5, // Keep maximum 5 rotated files
+      format: winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        winston.format.json()
+      )
     }),
     new winston.transports.File({ 
       filename: path.join(__dirname, "../logs/combined.log"),
       maxsize: 5 * 1024 * 1024, // 5MB limit
-      maxFiles: 5 // Keep maximum 5 rotated files
+      maxFiles: 5, // Keep maximum 5 rotated files
+      format: winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        winston.format.json()
+      )
     }),
   ],
 });
@@ -34,8 +40,14 @@ if (process.env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
       format: winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
         winston.format.colorize(),
-        winston.format.simple()
+        winston.format.printf(({ level, message, timestamp, stack }) => {
+          if (stack) {
+            return `[${timestamp}] ${level}: ${message}\n${stack}`;
+          }
+          return `[${timestamp}] ${level}: ${message}`;
+        })
       ),
     })
   );

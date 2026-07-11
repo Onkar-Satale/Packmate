@@ -14,11 +14,12 @@ const registerValidator = [
   body("firstName").trim().notEmpty().withMessage("First name is required"),
   body("lastName").optional().trim(),
   body("email").trim().isEmail().withMessage("Must be a valid email address").normalizeEmail(),
-body("password")
-  .isLength({ min: 6 }).withMessage("Password must be at least 6 characters long")
-  .matches(/[A-Z]/).withMessage("Must contain at least one uppercase letter")
-  .matches(/[a-z]/).withMessage("Must contain at least one lowercase letter")
-  .matches(/[0-9]/).withMessage("Must contain at least one number"),  validateRequest,
+  body("password")
+    .isLength({ min: 6 }).withMessage("Password must be at least 6 characters long")
+    .matches(/[A-Z]/).withMessage("Must contain at least one uppercase letter")
+    .matches(/[a-z]/).withMessage("Must contain at least one lowercase letter")
+    .matches(/[0-9]/).withMessage("Must contain at least one number"),
+  validateRequest,
 ];
 
 const loginValidator = [

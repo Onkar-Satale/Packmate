@@ -37,7 +37,20 @@ const errorHandler = (err, req, res, next) => {
   };
 
   // Structured logging via Winston
-  logger.error(`${error.statusCode} - ${error.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  const logMessage = `${error.statusCode} - ${error.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`;
+  const logMeta = {
+    statusCode: error.statusCode,
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    stack: error.stack,
+  };
+
+  if (error.statusCode >= 500) {
+    logger.error(logMessage, logMeta);
+  } else {
+    logger.warn(logMessage, { ...logMeta, stack: undefined }); // omit stack trace in warnings to keep them clean
+  }
 
   res.status(error.statusCode).json(response);
 };
