@@ -1,119 +1,23 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axiosConfig";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./TripDetailsPage.css";
+import TripPackingList from "../components/TripPackingList";
+import TripNotes from "../components/TripNotes";
+import TripPhotos from "../components/TripPhotos";
 
 const TripDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [trip, setTrip] = useState(null);
-    const [selectedPhotos, setSelectedPhotos] = useState([]);
-    const [deleteModal, setDeleteModal] = useState({ show: false, noteIdx: null });
-    const [deletePhotoModal, setDeletePhotoModal] = useState({ show: false });
-    const [isUploading, setIsUploading] = useState(false);
-    const [isTickingMode, setIsTickingMode] = useState(false);
-    const [draftPackingList, setDraftPackingList] = useState([]);
-    const [isSavingPackingList, setIsSavingPackingList] = useState(false);
-    const [isDeleteMode, setIsDeleteMode] = useState(false);
-    const [itemsToDelete, setItemsToDelete] = useState([]);
-
-
-    const handleDeleteNote = async (idx) => {
-        const updatedNotes = notes.filter((_, i) => i !== idx);
-        try {
-            await api.put(`/trips/${id}`, { notes: updatedNotes });
-            setNotes(updatedNotes);
-            toast.success("Note deleted successfully");
-        } catch (err) {
-            console.error("Failed to delete note", err.response?.data?.message || err.message);
-            toast.error(err.response?.data?.message || "Failed to delete note");
-        }
-    };
-
-    const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-    const [photoEditMode, setPhotoEditMode] = useState(false);
-    const [lightboxOpen, setLightboxOpen] = useState(false);
-
-
-    // Function to open lightbox
-    const openLightbox = (index) => {
-        setCurrentPhotoIndex(index);
-        setLightboxOpen(true);
-    };
-    // Navigate photos
-    const prevPhoto = () => {
-        setCurrentPhotoIndex((prev) => (prev === 0 ? trip.photos.length - 1 : prev - 1));
-    };
-    const nextPhoto = () => {
-        setCurrentPhotoIndex((prev) => (prev === trip.photos.length - 1 ? 0 : prev + 1));
-    };
-
-    // Close lightbox
-    const closeLightbox = () => setLightboxOpen(false);
-    const [showAdd, setShowAdd] = useState(false); // toggle add/edit section
-    const [notes, setNotes] = useState([]); // <-- initialize as empty
-    const noteTextRef = useRef(null); // Fix for Android predictive text swallowing React state
-    
-    // const [noteText, setNoteText] = useState(""); // current note text input
-    const [selectedNoteIndex, setSelectedNoteIndex] = useState(null); // currently selected note
-    const [isEditMode, setIsEditMode] = useState(false); // ✅ ADD THIS
-
-    useEffect(() => {
-        if (trip && Array.isArray(trip.notes)) {
-            setNotes(trip.notes);
-        }
-    }, [trip]);
-    // Open edit mode for selected note
-
-    // Save note (new or edited)
-    const handleSaveNote = async () => {
-        if (!noteTextRef.current) return;
-        
-        const currentText = noteTextRef.current.value;
-        if (!currentText.trim()) return;
-
-        noteTextRef.current.value = "";
-        setShowAdd(false);
-
-        let updatedNotes = [...notes];
-        if (isEditMode && selectedNoteIndex !== null) {
-            updatedNotes[selectedNoteIndex] = { ...updatedNotes[selectedNoteIndex], text: currentText, date: new Date().toLocaleString() };
-        } else {
-            updatedNotes.push({ text: currentText, date: new Date().toLocaleString() });
-        }
-
-        try {
-            await api.put(`/trips/${id}`, { notes: updatedNotes });
-            setNotes(updatedNotes);
-            setIsEditMode(false);
-            setSelectedNoteIndex(null);
-            toast.success(isEditMode ? "Note updated successfully!" : "Note saved successfully!");
-        } catch (err) {
-            console.error("Failed to save note", err);
-            toast.error(err.response?.data?.message || "Failed to save note");
-        }
-    };
-
-    const handleEditNote = (idx) => {
-        setIsEditMode(true);
-        setSelectedNoteIndex(idx);
-        setShowAdd(true);
-        setTimeout(() => {
-            if (noteTextRef.current) {
-                noteTextRef.current.value = notes[idx].text;
-                noteTextRef.current.focus();
-            }
-        }, 50);
-    };
 
     useEffect(() => {
         const fetchTripDetails = async () => {
             try {
                 const res = await api.get(`/trips/${id}`);
                 setTrip(res.data?.data || null);
-                setNotes(Array.isArray(res.data?.data?.notes) ? res.data.data.notes : []);
             } catch (err) {
                 console.error("Failed to fetch trip details", err);
                 toast.error(err.response?.data?.message || "Failed to fetch trip details");
@@ -124,157 +28,11 @@ const TripDetailsPage = () => {
 
     if (!trip) return <p>Loading trip details...</p>;
 
-    // -------- Notes Handlers --------
-
-
-    const handleAddPhotos = async (e) => {
-        const files = e.target.files;
-        if (!files || files.length === 0) return;
-        setIsUploading(true);
-
-        const formData = new FormData();
-        Array.from(files).forEach((file) => formData.append("photos", file));
-
-        try {
-            const res = await api.put(`/trips/${id}/upload`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            setTrip({ ...trip, photos: res.data?.data?.photos || [] });
-            toast.success("Photos uploaded successfully!");
-        } catch (err) {
-            console.error("Failed to upload photos", err);
-            toast.error(err.response?.data?.message || "Failed to upload photos");
-        } finally {
-            setIsUploading(false);
-        }
-    };
-
-    const togglePhotoSelect = (index) => {
-        setSelectedPhotos((prev) =>
-            prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-        );
-    };
-
-    const handleDeleteSelectedPhotos = () => {
-        setDeletePhotoModal({ show: true });
-    };
-
-    const confirmDeleteSelectedPhotos = async () => {
-        const remainingPhotos = trip.photos.filter((_, index) => !selectedPhotos.includes(index));
-
-        try {
-            await api.put(`/trips/${id}`, { photos: remainingPhotos });
-            setTrip({ ...trip, photos: remainingPhotos });
-            setSelectedPhotos([]);
-            setDeletePhotoModal({ show: false });
-            toast.success("Photos deleted successfully!");
-        } catch (err) {
-            console.error("Failed to delete photos", err);
-            toast.error(err.response?.data?.message || "Failed to delete photos");
-        }
-    };
-
-    const selectAllPhotos = () => {
-        if (!trip.photos) return;
-        setSelectedPhotos(trip.photos.map((_, index) => index));
-    };
-
-    const handleStartTicking = () => {
-        setDraftPackingList(structuredClone(trip.packingList));
-        setIsTickingMode(true);
-    };
-
-    const handleCancelTicking = () => {
-        setIsTickingMode(false);
-        setDraftPackingList([]);
-    };
-
-    const handleResetTicking = () => {
-        const updatedDraft = draftPackingList.map(section => ({
-            ...section,
-            items: section.items.map(item => {
-                if (typeof item === "string") return { name: item, completed: false };
-                return { ...item, completed: false };
-            })
-        }));
-        setDraftPackingList(updatedDraft);
-    };
-
-    const handleSaveTicking = async () => {
-        try {
-            setIsSavingPackingList(true);
-            await api.put(`/trips/${id}`, { packingList: draftPackingList });
-            setTrip({ ...trip, packingList: draftPackingList });
-            setIsTickingMode(false);
-            toast.success("Packing list saved!");
-        } catch (err) {
-            console.error("Failed to save packing list", err);
-            toast.error(err.response?.data?.message || "Failed to save packing list");
-        } finally {
-            setIsSavingPackingList(false);
-        }
-    };
-
-    const handleToggleDraftItem = (sectionIdx, itemIdx) => {
-        const updatedDraft = [...draftPackingList];
-        const items = [...updatedDraft[sectionIdx].items];
-        if (typeof items[itemIdx] === "string") {
-            items[itemIdx] = { name: items[itemIdx], completed: true };
-        } else {
-            items[itemIdx] = { ...items[itemIdx], completed: !items[itemIdx].completed };
-        }
-        updatedDraft[sectionIdx] = { ...updatedDraft[sectionIdx], items };
-        setDraftPackingList(updatedDraft);
-    };
-
-    const handleStartDeleteMode = () => {
-        setIsDeleteMode(true);
-        setItemsToDelete([]);
-        setIsTickingMode(false);
-    };
-
-    const handleCancelDeleteMode = () => {
-        setIsDeleteMode(false);
-        setItemsToDelete([]);
-    };
-
-    const handleToggleDeleteSelect = (sectionIdx, itemIdx) => {
-        const id = `${sectionIdx}-${itemIdx}`;
-        setItemsToDelete((prev) => 
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-        );
-    };
-
-    const handleDeleteSelectedItems = async () => {
-        if (itemsToDelete.length === 0) return;
-
-        const updatedPackingList = trip.packingList.map((section, sIdx) => {
-            return {
-                ...section,
-                items: section.items.filter((_, iIdx) => !itemsToDelete.includes(`${sIdx}-${iIdx}`))
-            };
-        }).filter((section) => section.items.length > 0);
-
-        try {
-            setIsSavingPackingList(true);
-            await api.put(`/trips/${id}`, { packingList: updatedPackingList });
-            setTrip({ ...trip, packingList: updatedPackingList });
-            setIsDeleteMode(false);
-            setItemsToDelete([]);
-            toast.success("Selected items deleted!");
-        } catch (err) {
-            console.error("Failed to delete items", err);
-            toast.error(err.response?.data?.message || "Failed to delete items");
-        } finally {
-            setIsSavingPackingList(false);
-        }
-    };
-
     return (
         <div className="trip-details-page">
 
             <h1>
-                Trip Details of 🌍
+                Trip Details of 🌍{" "}
                 <span style={{ color: "#3a009e", fontWeight: "700" }}>
                     {trip.destination}
                 </span>{" "}
@@ -309,29 +67,24 @@ const TripDetailsPage = () => {
                     <h2>Lifestyle & Comfort</h2>
                     <p><strong>Weather Sensitivity:</strong> {trip.weatherSensitivity ?? "Normal"}</p>
                     <p><strong>Activity Level:</strong> {trip.activityLevel ?? "Moderate"}</p>
-
                     <p><strong>Shopping Plan:</strong> {trip.shopping ? "Yes" : "No"}</p>
                     <p><strong>Photography / Video Gear:</strong> {trip.photographyGear === true ? "Yes" : "No"}</p>
                     <p><strong>Work Laptop:</strong> {trip.workLaptop === true ? "Yes" : "No"}</p>
-
                 </div>
 
                 {/* Food & Health */}
                 <div className="card">
                     <h2>Food & Health</h2>
-
                     <p>
                         <strong>Food Preference:</strong>{" "}
                         {trip.foodPreference ? trip.foodPreference : "No preference"}
                     </p>
-
                     <p>
                         <strong>Dietary Notes:</strong>{" "}
                         {trip.dietaryNotes && trip.dietaryNotes.trim() !== ""
                             ? trip.dietaryNotes
                             : "-"}
                     </p>
-
                     <p>
                         <strong>Medical Notes:</strong>{" "}
                         {trip.medicalNotes && trip.medicalNotes.trim() !== ""
@@ -339,7 +92,6 @@ const TripDetailsPage = () => {
                             : "-"}
                     </p>
                 </div>
-
 
                 {/* Travelers */}
                 <div className="card">
@@ -352,368 +104,34 @@ const TripDetailsPage = () => {
                             <p>Age: {person.age || "None"}</p>
                             <p>Gender: {person.gender || "None"}</p>
                             <p>Medical Notes: {person.medicalNotes || "None"}</p>
-
                         </div>
                     ))}
                 </div>
 
                 {/* Packing List */}
-                <div className="card packing-list-card">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px", flexWrap: "wrap", gap: "10px" }}>
-                        <h2 style={{ margin: 0 }}>Packing List</h2>
-                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                            {!isTickingMode && !isDeleteMode ? (
-                                <>
-                                    <button className="edit-photos-btn" onClick={handleStartTicking} style={{ backgroundColor: "#3a009e", color: "white", borderColor: "#3a009e" }}>
-                                        ✅ Start Ticking
-                                    </button>
-                                    <button className="edit-photos-btn" onClick={handleStartDeleteMode} style={{ borderColor: "#ef4444", color: "#ef4444" }}>
-                                        🗑 Delete Items
-                                    </button>
-                                </>
-                            ) : isTickingMode ? (
-                                <>
-                                    <button className="edit-photos-btn" onClick={handleResetTicking} style={{ borderColor: "#f97316", color: "#f97316" }}>
-                                        🔄 Refresh
-                                    </button>
-                                    <button className="edit-photos-btn" onClick={handleCancelTicking}>
-                                        ❌ Cancel
-                                    </button>
-                                    <button className="edit-photos-btn" onClick={handleSaveTicking} style={{ backgroundColor: "#10b981", color: "white", borderColor: "#10b981", opacity: isSavingPackingList ? 0.6 : 1, cursor: isSavingPackingList ? "not-allowed" : "pointer" }} disabled={isSavingPackingList}>
-                                        {isSavingPackingList ? "💾 Saving..." : "💾 Save"}
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <button className="edit-photos-btn" onClick={handleCancelDeleteMode}>
-                                        ❌ Cancel
-                                    </button>
-                                    <button 
-                                        className="edit-photos-btn" 
-                                        onClick={itemsToDelete.length > 0 ? handleDeleteSelectedItems : undefined}
-                                        style={{ 
-                                            backgroundColor: itemsToDelete.length > 0 ? "#ef4444" : "transparent",
-                                            color: itemsToDelete.length > 0 ? "white" : "#ef4444",
-                                            borderColor: "#ef4444", 
-                                            opacity: isSavingPackingList ? 0.6 : 1, 
-                                            cursor: isSavingPackingList || itemsToDelete.length === 0 ? "not-allowed" : "pointer" 
-                                        }} 
-                                        disabled={isSavingPackingList || itemsToDelete.length === 0}
-                                    >
-                                        {isSavingPackingList ? "🗑 Deleting..." : (itemsToDelete.length > 0 ? `🗑 Delete Selected (${itemsToDelete.length})` : "🗑 Select Items")}
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    {trip.packingList && trip.packingList.length > 0 ? (
-                        (isTickingMode ? draftPackingList : trip.packingList).map((section, idx) => (
-                            <div key={section._id || idx} className="packing-section">
-                                <h3>{section.category}</h3>
-
-                                <ul>
-                                    {section.items.map((item, i) => {
-                                        const isCompleted = typeof item === "string" ? false : item.completed;
-                                        // Remove any stray newlines from generated item text to prevent wrapping
-                                        const itemName = typeof item === "string" ? item.replace(/\n/g, ' ') : item.name.replace(/\n/g, ' ');
-                                        return (
-                                            <li key={i} style={{ 
-                                                display: "flex", 
-                                                justifyContent: "flex-start", 
-                                                alignItems: "center", 
-                                                gap: "10px", 
-                                                marginBottom: "8px",
-                                                textAlign: "left",
-                                                width: "100%"
-                                            }}>
-                                                {isTickingMode && (
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={isCompleted} 
-                                                        onChange={() => handleToggleDraftItem(idx, i)} 
-                                                        style={{ margin: 0, flexShrink: 0, cursor: "pointer", width: "18px", height: "18px" }}
-                                                    />
-                                                )}
-                                                {isDeleteMode && (
-                                                    <input 
-                                                        type="checkbox" 
-                                                        checked={itemsToDelete.includes(`${idx}-${i}`)} 
-                                                        onChange={() => handleToggleDeleteSelect(idx, i)} 
-                                                        style={{ margin: 0, flexShrink: 0, cursor: "pointer", width: "18px", height: "18px", accentColor: "#ef4444" }}
-                                                    />
-                                                )}
-                                                <span style={{ 
-                                                    textDecoration: isCompleted ? "line-through" : "none", 
-                                                    color: isDeleteMode && itemsToDelete.includes(`${idx}-${i}`) ? "#ef4444" : (isCompleted ? "#888" : "#333"),
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    whiteSpace: "nowrap",
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    textAlign: "left",
-                                                }}>
-                                                    {itemName}
-                                                </span>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No packing list generated yet.</p>
-                    )}
-                </div>
-
-
+                <TripPackingList
+                    trip={trip}
+                    setTrip={setTrip}
+                    id={id}
+                    toast={toast}
+                />
 
                 {/* Notes & Learnings */}
-                <div className="card notes-card">
-                    <div className="notes-header">
-                        <h2>Notes & Learnings</h2>
-                    </div>
-
-                    {/* Add Note Section */}
-                    {showAdd && (
-                        <div className="add-note-section">
-                            <textarea
-                                placeholder="Write your note here..."
-                                ref={noteTextRef}
-                                defaultValue={""}
-                            />
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                                <button 
-                                    className="modal-btn cancel-btn"
-                                    onClick={() => {
-                                        setShowAdd(false);
-                                        setIsEditMode(false);
-                                        setSelectedNoteIndex(null);
-                                    }}
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    className="save-note-btn" 
-                                    onPointerDown={(e) => e.preventDefault()}
-                                    onClick={handleSaveNote}
-                                >
-                                    {isEditMode ? "Save Edits" : "Save Note"}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                    {!showAdd && (
-                        <button className="add-note-btn" onClick={() => setShowAdd(true)}>
-                            + Add Note
-                        </button>
-                    )}
-
-                    {/* Notes List */}
-                    <div className="notes-container">
-                        {notes && notes.length > 0 ? (
-                            notes.map((note, idx) => (
-                                <div key={idx} className="note-wrapper">
-                                    <div className="note-thumb">
-                                        {/* Edit button */}
-                                        <button
-                                            className="note-edit-btn"
-                                            onClick={() => handleEditNote(idx)}
-                                            title="Edit Note"
-                                        >
-                                            ✎
-                                        </button>
-                                        {/* X button */}
-                                        <button
-                                            className="note-delete-btn"
-                                            onClick={() => setDeleteModal({ show: true, noteIdx: idx })}
-                                            title="Delete Note"
-                                        >
-                                            ×
-                                        </button>
-
-                                        <p>{note.text}</p>
-                                        <small>
-                                            {new Date(note.date).toLocaleString()}
-                                        </small>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No notes added yet.</p>
-                        )}
-                    </div>
-
-                    {/* Custom Delete Modal */}
-                    {deleteModal.show && (
-                        <div className="delete-modal-overlay">
-                            <div className="delete-modal">
-                                <p>Are you sure you want to delete this note?</p>
-                                <div className="delete-modal-buttons">
-                                    <button
-                                        className="modal-btn cancel-btn"
-                                        onClick={() => setDeleteModal({ show: false, noteIdx: null })}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        className="modal-btn confirm-btn"
-                                        onClick={() => {
-                                            handleDeleteNote(deleteModal.noteIdx);
-                                            setDeleteModal({ show: false, noteIdx: null });
-                                        }}
-                                    >
-                                        Yes, Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-
-
-
+                <TripNotes
+                    trip={trip}
+                    setTrip={setTrip}
+                    id={id}
+                    toast={toast}
+                />
             </div>
 
             {/* Photos Section */}
-            <div className="card photos-card">
-                <div className="photos-header">
-                    <h2>Photos</h2>
-
-                    <div style={{ display: "flex", gap: "8px" }}>
-                        {photoEditMode && trip.photos?.length > 0 && (
-                            <button
-                                className="edit-photos-btn"
-                                onClick={selectAllPhotos}
-                            >
-                                Select All
-                            </button>
-                        )}
-
-                        <button
-                            className="edit-photos-btn"
-                            onClick={() => {
-                                setPhotoEditMode(!photoEditMode);
-                                setSelectedPhotos([]);
-                            }}
-                        >
-                            {photoEditMode ? "Cancel" : "Edit"}
-                        </button>
-                    </div>
-                </div>
-
-
-                {/* Add Photo Button */}
-                <label className="add-photo-btn" style={{ opacity: isUploading ? 0.6 : 1, pointerEvents: isUploading ? "none" : "auto" }}>
-                    {isUploading ? "Uploading..." : "+ Add Photos"}
-                    <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        disabled={isUploading}
-                        hidden
-                        onChange={handleAddPhotos}
-                    />
-                </label>
-
-                {photoEditMode && selectedPhotos.length > 0 && (
-                    <button className="delete-photo-btn" onClick={handleDeleteSelectedPhotos}>
-                        🗑 Delete Selected
-                    </button>
-                )}
-
-                <div className="photos-container">
-                    {trip.photos && trip.photos.length > 0 ? (
-                        trip.photos.map((photo, i) => {
-                            const baseURL = process.env.REACT_APP_API_URL?.replace("/api", "") || "";
-                            const photoURL = photo.startsWith("http") ? photo : `${baseURL}${photo}`;
-                            return (
-                                <div key={i} className="photo-wrapper">
-                                    {photoEditMode && (
-                                        <input
-                                            type="checkbox"
-                                            className="photo-checkbox"
-                                            checked={selectedPhotos.includes(i)}
-                                            onChange={() => togglePhotoSelect(i)}
-                                        />
-                                    )}
-                                    <img
-                                        src={photoURL}
-                                        alt={`Trip photo ${i + 1}`}
-                                        onClick={() => !photoEditMode && openLightbox(i)}
-                                        className="photo-thumb"
-                                    />
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <p>No photos added yet.</p>
-                    )}
-                </div>
-                {/* Lightbox Modal */}
-                {lightboxOpen && trip.photos && trip.photos.length > 0 && (
-                    <div
-                        className="lightbox-overlay"
-                        onClick={(e) =>
-                            e.target.classList.contains("lightbox-overlay") && closeLightbox()
-                        }
-                    >
-                        <div className="lightbox-content">
-                            {/* Close button top-right */}
-                            <button className="lightbox-close" onClick={closeLightbox}>
-                                X
-                            </button>
-
-                            {/* Photo */}
-                            <img
-                                src={
-                                    trip.photos[currentPhotoIndex].startsWith("http")
-                                        ? trip.photos[currentPhotoIndex]
-                                        : `${process.env.REACT_APP_API_URL?.replace("/api", "") || ""}${trip.photos[currentPhotoIndex]}`
-                                }
-                                alt={`Trip photo ${currentPhotoIndex + 1}`}
-                                className="lightbox-photo"
-                            />
-
-                            {/* Navigation buttons */}
-                            {trip.photos.length > 1 && (
-                                <>
-                                    <button className="lightbox-prev" onClick={prevPhoto}>
-                                        ‹
-                                    </button>
-                                    <button className="lightbox-next" onClick={nextPhoto}>
-                                        ›
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Custom Delete Photo Modal */}
-            {deletePhotoModal.show && (
-                <div className="delete-modal-overlay">
-                    <div className="delete-modal">
-                        <p>Do you want to delete these photos?</p>
-                        <div className="delete-modal-buttons">
-                            <button
-                                className="modal-btn cancel-btn"
-                                onClick={() => setDeletePhotoModal({ show: false })}
-                            >
-                                No
-                            </button>
-                            <button
-                                className="modal-btn confirm-btn"
-                                onClick={confirmDeleteSelectedPhotos}
-                            >
-                                Yes
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <TripPhotos
+                trip={trip}
+                setTrip={setTrip}
+                id={id}
+                toast={toast}
+            />
         </div>
     );
 };

@@ -34,8 +34,7 @@ const AccountPage = () => {
         try {
             setLoading(true);
             setError("");
-            const token = localStorage.getItem("token");
-            if (!token) {
+            if (!localStorage.getItem("token")) {
                 navigate("/login");
                 return;
             }
@@ -67,7 +66,7 @@ const AccountPage = () => {
         setIsDeleting(true);
 
         try {
-            const token = localStorage.getItem("token");
+
 
             await api.delete(`/trips/${tripToDelete}`);
 

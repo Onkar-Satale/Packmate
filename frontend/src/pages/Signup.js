@@ -6,7 +6,7 @@ import api from '../api/axiosConfig';
 import './Login.css';
 import { AuthContext } from '../context/AuthContext';
 
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Signup() {
@@ -35,7 +35,7 @@ export default function Signup() {
 
     // Validate inputs
     const validateForm = () => {
-        const { firstName, lastName, email, password, confirmPassword } = formData;
+        const { firstName, email, password, confirmPassword } = formData;
 
         if (!firstName || !email || !password || !confirmPassword) {
             toast.error("⚠️ Please fill all required fields");

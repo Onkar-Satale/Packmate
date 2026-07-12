@@ -5,7 +5,7 @@ import imgch2 from '../assets/ch2.png';
 import imgch3 from '../assets/ch3.png';
 
 import { AuthContext } from '../context/AuthContext';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Home4 = () => {

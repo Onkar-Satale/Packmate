@@ -1,4 +1,4 @@
-import os
+cd import os
 import re
 import logging
 import requests
