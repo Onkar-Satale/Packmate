@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_PATH = os.path.join(os.path.dirname(BASE_DIR), ".env")
+ENV_PATH = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), ".env")
 load_dotenv(dotenv_path=ENV_PATH)
 
 PDFS_DIR = os.path.join(BASE_DIR, "pdfs")
@@ -155,10 +155,7 @@ def ingest_pdfs():
             
             # Load into Chroma DB using our custom SentenceTransformer embeddings model
             try:
-                try:
-                    from knowledge_base.rag import embed_documents
-                except ModuleNotFoundError:
-                    from rag import embed_documents
+                from app.services.rag import embed_documents
                 embeddings = embed_documents(chunks)
                 collection.add(
                     documents=chunks,

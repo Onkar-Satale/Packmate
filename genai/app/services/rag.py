@@ -10,12 +10,12 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Define paths and load .env configuration
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_PATH = os.path.join(os.path.dirname(BASE_DIR), ".env")
+# Define paths and load .env configuration relative to project root
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
 load_dotenv(dotenv_path=ENV_PATH)
 
-CHROMA_DB_DIR = os.path.join(BASE_DIR, "chroma_db")
+CHROMA_DB_DIR = os.path.join(BASE_DIR, "app", "knowledge_base", "chroma_db")
 
 import threading
 

@@ -168,3 +168,8 @@
 {"level":"info","message":"✅ MongoDB connected: 127.0.0.1","service":"packmate-api","timestamp":"2026-07-11 16:52:49"}
 {"level":"info","message":"🚀 Server proudly serving requests on port 5000","service":"packmate-api","timestamp":"2026-07-11 17:43:14"}
 {"level":"info","message":"✅ MongoDB connected: 127.0.0.1","service":"packmate-api","timestamp":"2026-07-11 17:43:14"}
+{"level":"info","message":"🚀 Server proudly serving requests on port 5000","service":"packmate-api","timestamp":"2026-07-12 14:06:35"}
+{"level":"info","message":"✅ MongoDB connected: 127.0.0.1","service":"packmate-api","timestamp":"2026-07-12 14:06:35"}
+{"ip":"::1","level":"warn","message":"401 - No refresh token available - /api/refresh-token - POST - ::1","method":"POST","service":"packmate-api","statusCode":401,"timestamp":"2026-07-12 14:07:13","url":"/api/refresh-token"}
+{"ip":"::1","level":"warn","message":"400 - A user with this email already exists - /api/register - POST - ::1","method":"POST","service":"packmate-api","statusCode":400,"timestamp":"2026-07-12 14:08:22","url":"/api/register"}
+{"ip":"::1","level":"warn","message":"400 - Invalid image detected. Please upload a clear photo of your own empty, open suitcase or travel bag for analysis. - /api/ai/analyze-suitcase - POST - ::1","method":"POST","service":"packmate-api","statusCode":400,"timestamp":"2026-07-12 14:09:41","url":"/api/ai/analyze-suitcase"}
