@@ -84,7 +84,7 @@ You are a senior professional travel planner and packing consultant. Your task i
 - Quantities, emojis, and items must be **dynamically decided** based on input data.
 - Use **standardized emojis per section** consistently.
 - Consider **traveler-specific details**: age, gender, medical notes, dietary restrictions, chronic conditions.
-- Consider **trip details**: location, activities, duration, accommodation, budget, luggage style.
+- Consider **trip details**: destination, activities, duration, accommodation, budget, luggage style.
 - Include optional, backup, and emergency items for all travelers.
 - EXTREMELY IMPORTANT: Take the provided day-by-day temperatures VERY seriously. Evaluate the exact high and low bounds and precisely adjust clothing (thermal wear, summer wear, thin layers) to perfectly match the temperature swings. Do NOT recommend winter items for hot days, or summer items for freezing days.
 - Ensure **practicality**: only include items travelers can realistically carry.
@@ -201,7 +201,7 @@ Respond ONLY with **JSON object** in this exact format:
 
     # Populate the dynamic data for the current request
     user_prompt = f"""
-Location: {data['location']}
+Destination: {data['destination']}
 Duration: {data['days']} days
 Trip Type: {data['trip_type']}
 Purpose: {data['purpose']}

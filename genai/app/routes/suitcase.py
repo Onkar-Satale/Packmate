@@ -22,7 +22,7 @@ def api_analyze_suitcase(req: SuitcaseAnalysisRequest):
         
     # 2. Fetch/compute weather
     weather_info = compute_full_trip_weather({
-        "location": req.destination,
+        "destination": req.destination,
         "start_date": req.start_date,
         "end_date": req.end_date,
         "days": req.duration

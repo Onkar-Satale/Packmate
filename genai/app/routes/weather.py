@@ -22,7 +22,7 @@ Task:
 Fix the spelling of the given city or country name.
 
 Input:
-{req.location}
+{req.destination}
 
 Rules:
 1. Return ONLY the corrected name.
@@ -46,15 +46,15 @@ Rules:
         
         # Fallback if Groq ignored instructions and wrote a conversational apology
         if len(raw_response.split()) > 4:
-            corrected_city = req.location
+            corrected_city = req.destination
         else:
             corrected_city = raw_response.strip(".,'\"")
             
     except Exception as e:
         logger.error(f"Groq city correction error: {e}")
-        corrected_city = req.location # Fallback to original
+        corrected_city = req.destination # Fallback to original
         
     # 2. Fetch API forecast and populate cache for the corrected city
     temp = prefetch_and_cache_weather(corrected_city)
     
-    return {"original": req.location, "location": corrected_city, "temperature": temp}
+    return {"original": req.destination, "destination": corrected_city, "temperature": temp}

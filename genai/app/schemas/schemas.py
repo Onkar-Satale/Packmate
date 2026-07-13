@@ -5,7 +5,7 @@ class TripRequestGenerate(BaseModel):
     """
     Expected input format for generating a packing list or downloading it.
     """
-    location: str = Field(..., max_length=150)
+    destination: str = Field(..., max_length=150)
     days: int = Field(..., ge=1, le=120)
     trip_type: str = Field(..., max_length=50)
     purpose: str = Field(..., max_length=50)
@@ -24,7 +24,7 @@ class PrefetchWeatherRequest(BaseModel):
     """
     Payload for fetching weather and correcting city names
     """
-    location: str = Field(..., max_length=150)
+    destination: str = Field(..., max_length=150)
 
 class DownloadRequest(BaseModel):
     """

@@ -2,12 +2,12 @@ import { body } from 'express-validator';
 import { validateRequest } from './authValidator.js';
 
 const prefetchWeatherValidator = [
-  body("location").notEmpty().withMessage("Location is required").isString(),
+  body("destination").notEmpty().withMessage("Destination is required").isString(),
   validateRequest,
 ];
 
 const generatePackingListValidator = [
-  body("location").notEmpty().isString(),
+  body("destination").notEmpty().isString(),
   body("days").isInt({ min: 1, max: 120 }),
   body("trip_type").notEmpty().isString(),
   body("purpose").notEmpty().isString(),

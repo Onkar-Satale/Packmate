@@ -31,7 +31,6 @@ class TripService {
     formattedData.userId = userId;
     
     // Fallback normalization
-    formattedData.destination = formattedData.destination || formattedData.location;
     formattedData.totalDays = formattedData.totalDays || formattedData.days;
 
     // Formatting for nested properties

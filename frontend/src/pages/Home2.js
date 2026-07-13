@@ -51,7 +51,7 @@ const Home2 = () => {
                 <p className="subHeading">
                     Our AI-driven packing assistant simplifies your travel preparation by
                     providing personalized packing recommendations. Input your travel
-                    details, and let our smart assistant consider weather, location, and
+                    details, and let our smart assistant consider weather, destination, and
                     activities to ensure you pack everything you need for a stress-free
                     journey.
                 </p>
@@ -79,7 +79,7 @@ const Home2 = () => {
                 <p className="subHeading">
                     PackMate's AI Packing Assistant offers a seamless travel preparation
                     experience. With personalized recommendations based on weather,
-                    location, and activities, it ensures you never miss an essential
+                    destination, and activities, it ensures you never miss an essential
                     item. The interactive animations make planning enjoyable, adapting to
                     your unique travel style for stress-free packing.
                 </p>

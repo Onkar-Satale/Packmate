@@ -40,7 +40,7 @@ const Home = () => {
                     </h1>
                     <p className="heroParagraph">
                         PackMate’s AI-powered assistant tailors packing lists to your
-                        travel plans, considering weather, location, and activities. Enjoy
+                        travel plans, considering weather, destination, and activities. Enjoy
                         stress-free travel with personalized recommendations.
                     </p>
                     <div className="heroButtons">

@@ -2,13 +2,7 @@ import { body } from 'express-validator';
 import { validateRequest } from './authValidator.js';
 
 const tripValidator = [
-  body()
-    .custom((value) => {
-      if (!value.destination && !value.location) {
-        throw new Error("Destination or location is required");
-      }
-      return true;
-    }),
+  body("destination").notEmpty().withMessage("Destination is required").isString().withMessage("Destination must be a string"),
   body("startDate").notEmpty().withMessage("Start date is required").isISO8601().toDate().withMessage("startDate must be a valid date"),
   body("endDate").notEmpty().withMessage("End date is required").isISO8601().toDate().withMessage("endDate must be a valid date"),
   body("totalDays").optional().isInt({ min: 1 }).withMessage("totalDays must be a positive integer"),

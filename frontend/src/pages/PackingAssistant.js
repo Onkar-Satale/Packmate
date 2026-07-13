@@ -126,9 +126,9 @@ export default function PackingAssistant() {
         lastCheckedCityRef.current = city;
 
         try {
-            const weatherRes = await api.post("/ai/prefetch-weather", { location: city });
+            const weatherRes = await api.post("/ai/prefetch-weather", { destination: city });
 
-            const correctedCity = weatherRes.data.location;
+            const correctedCity = weatherRes.data.destination;
             const temp = weatherRes.data.temperature;
 
             setTrip(prev => ({ ...prev, destination: correctedCity }));
@@ -243,7 +243,7 @@ export default function PackingAssistant() {
         setFormError("⏳ Please wait, AI is generating your list... (This can take up to 50 seconds on first run)");
 
         const payload = {
-            location: trip.destination || "",
+            destination: trip.destination || "",
             start_date: trip.startDate,
             end_date: trip.endDate,
             days: trip.totalDays || 1,

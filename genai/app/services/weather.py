@@ -92,7 +92,7 @@ def prefetch_and_cache_weather(location: str):
 
 def compute_full_trip_weather(data: dict) -> str:
     from datetime import datetime, timedelta
-    location = data.get("location", "").lower().strip()
+    destination = data.get("destination", "").lower().strip()
     start_date_str = data.get("start_date")
     end_date_str = data.get("end_date")
     trip_days = int(data.get("days", 1))
@@ -105,7 +105,7 @@ def compute_full_trip_weather(data: dict) -> str:
     try:
         # Fallback if dates are missing: use today + trip_days
         if not start_date_str or not end_date_str:
-            logger.info(f"Dates missing for {location}, falling back to today + {trip_days} days")
+            logger.info(f"Dates missing for {destination}, falling back to today + {trip_days} days")
             start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             total_days = trip_days
         else:
@@ -116,12 +116,12 @@ def compute_full_trip_weather(data: dict) -> str:
         
         date_list = [start_date + timedelta(days=i) for i in range(total_days)]
         
-        cached_weather = weather_cache.get(location)
+        cached_weather = weather_cache.get(destination)
         if not cached_weather:
             # Graceful fetch in case prefetch wasn't called or cache was lost
             logger.info("Weather cache miss in compute_full_trip_weather, fetching now.")
-            _ = prefetch_and_cache_weather(location)
-            cached_weather = weather_cache.get(location)
+            _ = prefetch_and_cache_weather(destination)
+            cached_weather = weather_cache.get(destination)
             
         if cached_weather and cached_weather.get("api_temps"):
             api_temps = cached_weather["api_temps"]
@@ -131,11 +131,11 @@ def compute_full_trip_weather(data: dict) -> str:
         else:
             api_temps = {}
             sixteenth_day_temp = fallback_temp
-
+ 
         forecast_api_lines = []
         forecast_extra_lines = []
         current_temp = sixteenth_day_temp
-
+ 
         for dt in date_list:
             dt_str = dt.strftime("%Y-%m-%d")
             
@@ -145,18 +145,18 @@ def compute_full_trip_weather(data: dict) -> str:
             else:
                 drift = random.choices([-2, -1, 0, 1, 2], weights=[0.1, 0.35, 0.1, 0.35, 0.1])[0]
                 new_temp = current_temp + drift
-
+ 
                 if new_temp > sixteenth_day_temp + 5:
                     new_temp = sixteenth_day_temp + 5
                 elif new_temp < sixteenth_day_temp - 5:
                     new_temp = sixteenth_day_temp - 5
-
+ 
                 current_temp = round(new_temp, 1)
                 forecast_extra_lines.append(f"{dt_str} → {current_temp}°C (Generated Drift)")
         
         all_lines = forecast_api_lines + forecast_extra_lines
         
-        formatted_output = f"\n================ FULL DAY-WISE TEMPERATURE MAPPING FOR '{location.upper()}' ================\n"
+        formatted_output = f"\n================ FULL DAY-WISE TEMPERATURE MAPPING FOR '{destination.upper()}' ================\n"
         formatted_output += "\n".join(all_lines)
         formatted_output += "\n=================================================================================="
         
