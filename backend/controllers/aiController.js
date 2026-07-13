@@ -64,31 +64,9 @@ export const analyzeSuitcase = async (req, res, next) => {
   }
 };
 
-export const chat = async (req, res, next) => {
-  try {
-    const response = await axios.post(`${genaiUrl}/chat`, req.body, {
-      headers: { 'x-api-key': genaiApiSecret }
-    });
-    res.json(response.data);
-  } catch (err) {
-    handleAxiosError(err, next);
-  }
-};
-
 export const travelChat = async (req, res, next) => {
   try {
     const response = await axios.post(`${genaiUrl}/travel-chat`, req.body, {
-      headers: { 'x-api-key': genaiApiSecret }
-    });
-    res.json(response.data);
-  } catch (err) {
-    handleAxiosError(err, next);
-  }
-};
-
-export const debugRag = async (req, res, next) => {
-  try {
-    const response = await axios.get(`${genaiUrl}/debug-rag`, {
       headers: { 'x-api-key': genaiApiSecret }
     });
     res.json(response.data);

@@ -6,7 +6,6 @@ import {
   generatePackingListValidator,
   downloadPackingListValidator,
   analyzeSuitcaseValidator,
-  chatValidator,
 } from '../validators/aiValidator.js';
 import * as aiController from '../controllers/aiController.js';
 
@@ -44,12 +43,6 @@ router.post(
   "/analyze-suitcase",
   analyzeSuitcaseValidator,
   aiController.analyzeSuitcase
-);
-
-router.post(
-  "/chat",
-  chatValidator,
-  aiController.chat
 );
 
 export default router;

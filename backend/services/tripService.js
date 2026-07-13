@@ -95,16 +95,6 @@ class TripService {
     if (!trip) throw new ApiError(404, "Trip not found");
     return trip.photos;
   }
-
-  async updateNotes(tripId, userId, notes) {
-    const trip = await Trip.findOneAndUpdate(
-      { _id: tripId, userId },
-      { notes },
-      { new: true }
-    );
-    if (!trip) throw new ApiError(404, "Trip not found");
-    return trip.notes;
-  }
 }
 
 export default new TripService();

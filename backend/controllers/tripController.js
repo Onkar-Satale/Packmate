@@ -57,12 +57,3 @@ export const uploadPhotos = async (req, res, next) => {
     next(err);
   }
 };
-
-export const updateNotes = async (req, res, next) => {
-  try {
-    const notes = await tripService.updateNotes(req.params.id, req.userId, req.body.notes);
-    res.json({ success: true, data: notes });
-  } catch (err) {
-    next(err);
-  }
-};

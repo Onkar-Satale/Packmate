@@ -9,10 +9,6 @@ class AuthService {
     return await User.findOne({ email: lowercasedEmail }).select("+password");
   }
 
-  async findUserById(userId) {
-    return await User.findById(userId);
-  }
-
   async findUserWithRefreshToken(userId) {
     return await User.findById(userId).select("+refreshToken");
   }

@@ -89,7 +89,6 @@ app.use("/api", apiRateLimiter);
 
 // 5. Mount API Routes
 app.post('/api/travel-chat', chatValidator, aiController.travelChat);
-app.get('/api/debug-rag', aiController.debugRag);
 app.use('/api', authRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/ai', aiRoutes);

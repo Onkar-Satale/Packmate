@@ -30,13 +30,7 @@ const updateTripValidator = [
   validateRequest,
 ];
 
-const tripNotesValidator = [
-  body("notes").isArray().withMessage("notes must be an array of objects"),
-  validateRequest
-];
-
 export {
   tripValidator,
-  updateTripValidator,
-  tripNotesValidator
+  updateTripValidator
 };
