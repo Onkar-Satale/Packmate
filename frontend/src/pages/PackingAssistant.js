@@ -4,6 +4,8 @@ import "./PackingAssistant.css";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import SuitcaseAnalyzer from "../components/SuitcaseAnalyzer";
+import TravelersSection from "../components/TravelersSection";
+import PackingListSection from "../components/PackingListSection";
 
 export default function PackingAssistant() {
     const [trip, setTrip] = useState(
@@ -694,103 +696,12 @@ export default function PackingAssistant() {
             </section>
 
             {/* ================= TRAVELERS ================= */}
-            <section className="card travelers-card">
-                <h2>Travelers Information</h2>
-
-                <div className="travelers-summary">
-                    <div>
-                        <label>Kids</label>
-                        <input
-                            type="number"
-                            name="kids"
-                            min="0"
-                            value={trip.kids ?? ""}
-                            onChange={handleChange}
-                            onKeyDown={(e) => {
-                                if (["e", "E", "+", "-", "."].includes(e.key)) {
-                                    e.preventDefault();
-                                }
-                            }}
-                        />
-                    </div>
-                    <div>
-                        <label>Elders</label>
-                        <input
-                            type="number"
-                            name="elders"
-                            min="0"
-                            value={trip.elders ?? ""}
-                            onChange={handleChange}
-                            onKeyDown={(e) => {
-                                if (["e", "E", "+", "-", "."].includes(e.key)) {
-                                    e.preventDefault();
-                                }
-                            }}
-                        />
-                    </div>
-                </div>
-
-                {(trip.people || []).map((p, i) => (
-                    <div key={i} className="traveler-card">
-                        <div className="traveler-header">
-                            <h3>Traveler {i + 1}</h3>
-                            <button
-                                className="remove-traveler-btn"
-                                onClick={() => removeTraveler(i)}
-                            >
-                                X
-                            </button>
-                        </div>
-                        <div className="traveler-fields">
-                            <div>
-                                <label>Name</label>
-                                <input
-                                    type="text"
-                                    placeholder="Full Name"
-                                    value={p.name || ""}
-                                    onChange={e => handleChange(e, i, "name")}
-                                />
-                            </div>
-                            <div>
-                                <label>Age</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    placeholder="Age"
-                                    value={p.age || ""}
-                                    onChange={e => handleChange(e, i, "age")}
-                                    onKeyDown={(e) => {
-                                        if (["e", "E", "+", "-", "."].includes(e.key)) {
-                                            e.preventDefault();
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div>
-                                <label>Gender</label>
-                                <select value={p.gender} onChange={e => handleChange(e, i, "gender")}>
-                                    <option>Female</option>
-                                    <option>Male</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Medical Notes</label>
-                                <input
-                                    type="text"
-                                    placeholder="Any medical info"
-                                    value={p.medical || ""}
-                                    onChange={e => handleChange(e, i, "medical")}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                ))}
-
-                <button className="add-traveler-btn" onClick={addTraveler}>
-                    + Add Traveler
-                </button>
-            </section>
+            <TravelersSection
+                trip={trip}
+                handleChange={handleChange}
+                addTraveler={addTraveler}
+                removeTraveler={removeTraveler}
+            />
 
             {/* ACTIONS */}
             {formError && (
@@ -822,24 +733,7 @@ export default function PackingAssistant() {
                 </button>
             </div>
 
-            {packingList.length > 0 && (
-                <section className="packing-list">
-                    <h2>Packing List</h2>
-
-                    {packingList.length > 0 && packingList.map((section, sectionIdx) => (
-                        <div key={section._id || sectionIdx} className="packing-section">
-                            <h3>{section.category || "General"}</h3>
-                            <div className="packing-items">
-                                {Array.isArray(section.items) && section.items.map((item, itemIdx) => (
-                                    <div key={itemIdx} className="packing-item">
-                                        {item.name || item} {/* will work even if item is string */}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </section>
-            )}
+            <PackingListSection packingList={packingList} />
 
             {packingList.length > 0 && showSuitcaseAnalyzer && (
                 <SuitcaseAnalyzer
