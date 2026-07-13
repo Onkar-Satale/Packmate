@@ -8,7 +8,7 @@ const tripValidator = [
   body("totalDays").optional().isInt({ min: 1 }).withMessage("totalDays must be a positive integer"),
   body("kids").optional().isInt({ min: 0 }).withMessage("kids must be a non-negative integer"),
   body("elders").optional().isInt({ min: 0 }).withMessage("elders must be a non-negative integer"),
-  body("peoples").optional().isArray().withMessage("peoples must be an array"),
+  body("travelers").optional().isArray().withMessage("travelers must be an array"),
   validateRequest,
 ];
 
@@ -19,7 +19,7 @@ const updateTripValidator = [
   body("totalDays").optional().isInt({ min: 1 }).withMessage("totalDays must be a positive integer"),
   body("kids").optional().isInt({ min: 0 }).withMessage("kids must be a non-negative integer"),
   body("elders").optional().isInt({ min: 0 }).withMessage("elders must be a non-negative integer"),
-  body("peoples").optional().isArray().withMessage("peoples must be an array"),
+  body("travelers").optional().isArray().withMessage("travelers must be an array"),
   body("notes").optional().isArray().withMessage("notes must be an array of objects"),
   validateRequest,
 ];

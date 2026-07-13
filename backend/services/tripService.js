@@ -1,12 +1,8 @@
 import Trip from '../models/Trip.js';
 import ApiError from '../utils/ApiError.js';
 
-// Map frontend `peoples` backwards to DB `travelers` and vice versa
 const formatIncomingData = (data) => {
   const formatted = { ...data };
-  if (formatted.peoples !== undefined) {
-    formatted.travelers = formatted.peoples;
-  }
   // Ensure dates are parsed properly if not handled automatically via express-validator format
   return formatted;
 };
@@ -14,9 +10,6 @@ const formatIncomingData = (data) => {
 const formatOutgoingTrip = (trip) => {
   if (!trip) return trip;
   const doc = trip.toObject ? trip.toObject() : trip;
-  if (doc.travelers) {
-    doc.peoples = doc.travelers;
-  }
   
   // Format dates cleanly without the T00:00:00.000Z backend signature
   if (doc.startDate instanceof Date) doc.startDate = doc.startDate.toISOString().split("T")[0];

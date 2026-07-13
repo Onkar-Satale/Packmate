@@ -211,7 +211,7 @@ Budget: {data['budget']}
 Food Preference: {data['food']}
 Luggage Style: {data['luggage']}
 Travel Mode: {data['travel_type']}
-Travelers details: {data['people']}
+Travelers details: {data['travelers']}
 Medical Notes: {data.get('medicalNotes')}
 Dietary Notes: {data.get('dietaryNotes')}
 Laundry Available: {data.get('laundry')}

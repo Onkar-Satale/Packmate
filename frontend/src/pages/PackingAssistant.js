@@ -38,7 +38,7 @@ export default function PackingAssistant() {
             kids: 0,
             elders: 0,
 
-            people: [{ name: "", age: "", gender: "Female", medical: "" }],
+            travelers: [{ name: "", age: "", gender: "Female", medical: "" }],
         });
 
     const [packingList, setPackingList] = useState([]);
@@ -201,9 +201,9 @@ export default function PackingAssistant() {
         }
 
         if (idx !== null) {
-            const people = [...trip.people];
-            people[idx][field] = finalValue;
-            setTrip({ ...trip, people });
+            const travelers = [...trip.travelers];
+            travelers[idx][field] = finalValue;
+            setTrip({ ...trip, travelers });
         } else {
             setTrip({ ...trip, [name]: finalValue });
         }
@@ -214,7 +214,7 @@ export default function PackingAssistant() {
     const addTraveler = () => {
         setTrip({
             ...trip,
-            people: [...trip.people, { name: "", age: "", gender: "Female", medical: "" }]
+            travelers: [...trip.travelers, { name: "", age: "", gender: "Female", medical: "" }]
         });
     };
 
@@ -255,7 +255,7 @@ export default function PackingAssistant() {
             food: trip.foodPreference || "No preference",
             luggage: trip.luggage || "Backpack",
             travel_type: trip.travelMode || "Flight",
-            people: trip.people
+            travelers: trip.travelers
                 .map((p) => `${p.name || "Traveler"}, ${p.age || "N/A"} years, ${p.gender || "Female"}, Medical: ${p.medical || "None"}`)
                 .join("\n"),
             temperature: prefetchedTemp
@@ -343,7 +343,7 @@ export default function PackingAssistant() {
                 medicalNotes: trip.medicalNotes,
                 kids: trip.kids,
                 elders: trip.elders,
-                peoples: trip.people.map(p => ({
+                travelers: trip.travelers.map(p => ({
                     name: p.name || "Traveler",
                     age: Number(p.age) || 0,
                     gender: p.gender || "Female",
@@ -410,9 +410,9 @@ export default function PackingAssistant() {
 
 
     const removeTraveler = (index) => {
-        const updated = [...trip.people];
+        const updated = [...trip.travelers];
         updated.splice(index, 1);
-        setTrip({ ...trip, people: updated });
+        setTrip({ ...trip, travelers: updated });
     };
 
 

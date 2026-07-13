@@ -15,7 +15,7 @@ class TripRequestGenerate(BaseModel):
     food: str = Field(..., max_length=100)
     luggage: str = Field(..., max_length=100)
     travel_type: str = Field(..., max_length=100)
-    people: str = Field(..., max_length=1000)  # A flat string describing all travelers (e.g. "John, 25 years, Male")
+    travelers: str = Field(..., max_length=1000)  # A flat string describing all travelers (e.g. "John, 25 years, Male")
     temperature: Optional[float] = None
     start_date: Optional[str] = Field(None, max_length=20)
     end_date: Optional[str] = Field(None, max_length=20)

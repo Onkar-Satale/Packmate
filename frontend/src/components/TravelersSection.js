@@ -38,7 +38,7 @@ export default function TravelersSection({ trip, handleChange, addTraveler, remo
                 </div>
             </div>
 
-            {(trip.people || []).map((p, i) => (
+            {(trip.travelers || []).map((p, i) => (
                 <div key={i} className="traveler-card">
                     <div className="traveler-header">
                         <h3>Traveler {i + 1}</h3>

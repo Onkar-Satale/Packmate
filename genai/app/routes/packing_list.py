@@ -15,7 +15,7 @@ def api_generate_packing_list(request: Request, trip: TripRequestGenerate):
     Primary API Endpoint to generate an AI-driven packing list.
     
     Expected Body (TripRequestGenerate format): 
-      JSON with location, days, trip_type, budget, food, luggage, people, etc.
+      JSON with location, days, trip_type, budget, food, luggage, travelers, etc.
       
     Returns: 
       JSON response containing:

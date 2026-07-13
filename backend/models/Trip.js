@@ -53,7 +53,7 @@ const TripSchema = new mongoose.Schema({
   // -------- Travelers --------
   kids: { type: Number, default: 0, min: 0 },
   elders: { type: Number, default: 0, min: 0 },
-  travelers: [TravelerSchema], // Aliased/Mapped from 'peoples' in the service layer
+  travelers: [TravelerSchema],
 
   // -------- Packing --------
   packingList: [PackingCategorySchema],

@@ -98,7 +98,7 @@ const TripDetailsPage = () => {
                     <h2>Travelers Information</h2>
                     <p><strong>Kids:</strong> {trip.kids || 0}</p>
                     <p><strong>Elders:</strong> {trip.elders || 0}</p>
-                    {trip.peoples && trip.peoples.map((person, index) => (
+                    {trip.travelers && trip.travelers.map((person, index) => (
                         <div key={index} className="traveler-card">
                             <p><strong>Traveler {index + 1}:</strong> {person.name || "None"}</p>
                             <p>Age: {person.age || "None"}</p>
