@@ -18,3 +18,9 @@ build/
 
 backend/uploads/
 
+# Logs
+backend/logs/
+*.log
+
+# Vector Database (ChromaDB)
+genai/app/knowledge_base/chroma_db/
