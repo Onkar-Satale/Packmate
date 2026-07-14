@@ -31,13 +31,20 @@ def get_collection():
             if _collection is None:
                 try:
                     import chromadb
-                    if os.path.exists(CHROMA_DB_DIR):
-                        logger.info("Initializing global ChromaDB persistent client...")
-                        _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
-                        try:
-                            _collection = _chroma_client.get_collection(name="travel_assistant")
-                        except Exception:
-                            logger.warning("travel_assistant collection does not exist in ChromaDB yet.")
+                    # Ensure path directory exists
+                    os.makedirs(CHROMA_DB_DIR, exist_ok=True)
+                    logger.info(f"Initializing global ChromaDB persistent client at: {CHROMA_DB_DIR}")
+                    _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
+                    try:
+                        # Try to get or create collection with cosine similarity metric
+                        _collection = _chroma_client.get_or_create_collection(
+                            name="travel_assistant",
+                            metadata={"hnsw:space": "cosine"}
+                        )
+                        logger.info("ChromaDB collection 'travel_assistant' initialized successfully with Cosine space.")
+                    except Exception as e:
+                        logger.warning(f"Failed to get/create collection with cosine metadata: {e}. Falling back to default.")
+                        _collection = _chroma_client.get_collection(name="travel_assistant")
                 except Exception as e:
                     logger.error(f"Failed to initialize ChromaDB collection: {e}")
     return _collection
@@ -49,21 +56,23 @@ ON_RENDER = os.getenv("RENDER", "false").lower() == "true"
 USE_LOCAL_EMBEDDINGS_DEFAULT = "false" if ON_RENDER else "true"
 USE_LOCAL_EMBEDDINGS = os.getenv("USE_LOCAL_EMBEDDINGS", USE_LOCAL_EMBEDDINGS_DEFAULT).lower() == "true"
 
-
 _embedding_model = None
-if USE_LOCAL_EMBEDDINGS:
-    try:
-        from sentence_transformers import SentenceTransformer
-        logger.info("Initializing local SentenceTransformer embedding model 'all-MiniLM-L6-v2'...")
-        _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-    except ImportError:
-        logger.error("SentenceTransformer package is not installed. Local RAG embeddings will be unavailable.")
-    except Exception as e:
-        logger.error(f"Error loading local SentenceTransformer: {e}")
-else:
-    logger.info("USE_LOCAL_EMBEDDINGS is false. Local SentenceTransformer will not be loaded (using Hugging Face API instead).")
+_model_lock = threading.Lock()
 
 def get_embedding_model():
+    global _embedding_model
+    if _embedding_model is None and USE_LOCAL_EMBEDDINGS:
+        with _model_lock:
+            if _embedding_model is None:
+                try:
+                    from sentence_transformers import SentenceTransformer
+                    logger.info("Initializing local SentenceTransformer embedding model 'all-MiniLM-L6-v2'...")
+                    _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+                    logger.info("Local SentenceTransformer embedding model initialized successfully.")
+                except ImportError:
+                    logger.error("SentenceTransformer package is not installed. Local RAG embeddings will be unavailable.")
+                except Exception as e:
+                    logger.error(f"Error loading local SentenceTransformer: {e}")
     return _embedding_model
 
 def query_huggingface_embeddings(texts: list) -> list:
@@ -175,9 +184,11 @@ def retrieve_relevant_chunks(query_text: str, n_results: int = 7) -> dict:
             return {}
             
         # 1. Embed query using our custom model
+        logger.info(f"Generating query embedding for: '{query_text}'")
         query_embedding = embed_query(query_text)
         
         # 2. Query collection with embedding
+        logger.info(f"Querying ChromaDB collection 'travel_assistant' for {n_results} nearest neighbors...")
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=n_results
@@ -256,32 +267,66 @@ def generate_rag_response(prompt: str) -> str:
 def travel_chatbot(query: str) -> dict:
     """
     Full pipeline entry point coordinating retrieval, prompt building, and response generation,
-    with an automatic general knowledge fallback.
+    with an automatic general knowledge fallback when no relevant PDF context exists.
     """
-    refusal_phrase = "I'm sorry, I could not find relevant information in the knowledge base to answer your question."
+    logger.info(f"--- Processing query in travel_chatbot: '{query}' ---")
     
     # 1. Retrieve most similar chunks
     results = retrieve_relevant_chunks(query, n_results=7)
-    chunks = results.get("documents", [[]])[0] if results.get("documents") else []
-    metadatas = results.get("metadatas", [[]])[0] if results.get("metadatas") else []
     
-    if chunks:
-        # 2. Compile RAG prompt
-        prompt, sources = build_rag_prompt(query, chunks, metadatas)
-        # 3. Generate RAG completions
-        answer = generate_rag_response(prompt)
+    raw_documents = results.get("documents", [[]])[0] if results.get("documents") else []
+    raw_metadatas = results.get("metadatas", [[]])[0] if results.get("metadatas") else []
+    raw_distances = results.get("distances", [[]])[0] if results.get("distances") else []
+    
+    # Safely get space setting from collection metadata
+    collection = get_collection()
+    space = "l2"
+    if collection and collection.metadata:
+        space = collection.metadata.get("hnsw:space", "l2")
         
-        # Check if RAG refused to answer (context missing information)
-        if refusal_phrase.lower() not in answer.lower():
-            return {
-                "answer": answer.strip(),
-                "sources": sources,
-                "is_fallback": False
-            }
+    # Get distance threshold from environment or space default
+    default_threshold = 0.5 if space == "cosine" else 1.0
+    threshold_env = os.getenv("RAG_DISTANCE_THRESHOLD")
+    distance_threshold = float(threshold_env) if threshold_env else default_threshold
+    
+    logger.info(f"Retrieval configurations: space={space}, threshold={distance_threshold}")
+    
+    filtered_chunks = []
+    filtered_metadatas = []
+    
+    logger.info(f"Retrieved {len(raw_documents)} raw chunks from database:")
+    for idx in range(len(raw_documents)):
+        doc = raw_documents[idx]
+        meta = raw_metadatas[idx] if idx < len(raw_metadatas) else {}
+        dist = raw_distances[idx] if idx < len(raw_distances) else distance_threshold
+        
+        # Calculate similarity score percentage
+        if space == "cosine":
+            similarity = 1.0 - dist
+        else:  # l2 space
+            similarity = 1.0 - (dist / 2.0)
+        similarity_percentage = max(0.0, min(1.0, similarity)) * 100
+        
+        passed = dist <= distance_threshold
+        source = meta.get("source", "Unknown Document")
+        preview = doc.replace("\n", " ")[:80]
+        
+        logger.info(
+            f"  [{idx+1}] Source: {source} | Distance: {dist:.4f} | "
+            f"Similarity: {similarity_percentage:.1f}% | Passed: {passed} | Preview: '{preview}...'"
+        )
+        
+        if passed:
+            filtered_chunks.append(doc)
+            filtered_metadatas.append(meta)
             
-    # 4. Fallback: Generate response using general knowledge
-    logger.info(f"RAG search failed to resolve query: '{query}'. Falling back to General LLM completions.")
-    fallback_prompt = f"""
+    # Refusal phrase configured in the prompt instructions
+    refusal_phrase = "I'm sorry, I could not find relevant information in the knowledge base to answer your question."
+    
+    # 2. Decision logic: Proceed with RAG or fallback to general LLM
+    if not filtered_chunks:
+        logger.info(f"Decision: No relevant PDF chunks passed the threshold. Falling back to General LLM knowledge.")
+        fallback_prompt = f"""
 You are a highly helpful and accurate Travel Assistant for PackMate.
 Answer the traveler's question using your general pre-trained knowledge.
 Keep your answer clear, concise, structured, and helpful.
@@ -291,9 +336,47 @@ Traveler's Question:
 
 Your Answer:
 """
-    fallback_answer = generate_rag_response(fallback_prompt)
+        fallback_answer = generate_rag_response(fallback_prompt)
+        return {
+            "answer": fallback_answer.strip(),
+            "sources": [],
+            "is_fallback": True
+        }
+        
+    logger.info(f"Decision: {len(filtered_chunks)} relevant chunk(s) passed the threshold. Querying RAG LLM.")
+    
+    # 3. Compile RAG prompt
+    prompt, sources = build_rag_prompt(query, filtered_chunks, filtered_metadatas)
+    
+    # 4. Generate RAG completions
+    answer = generate_rag_response(prompt)
+    
+    # Robust check for refusal: check for standard variations of the refusal phrase
+    refusal_checks = [
+        refusal_phrase.lower(),
+        "could not find relevant information in the knowledge base",
+        "i could not find any information in the provided context",
+        "the provided context does not contain",
+        "i'm sorry, but i cannot answer",
+        "the context provided does not mention",
+        "based on the context provided, there is no"
+    ]
+    
+    lowered_answer = answer.lower()
+    model_refused = any(ref_phrase in lowered_answer for ref_phrase in refusal_checks)
+    
+    if model_refused:
+        logger.info("RAG LLM indicated it could not find the answer in the provided PDF context.")
+        # Ensure we return a clean refusal without using fallback to general knowledge
+        return {
+            "answer": answer.strip(),
+            "sources": sources,
+            "is_fallback": False
+        }
+        
+    logger.info("RAG LLM successfully generated an answer based on PDF context.")
     return {
-        "answer": fallback_answer.strip(),
-        "sources": [],
-        "is_fallback": True
+        "answer": answer.strip(),
+        "sources": sources,
+        "is_fallback": False
     }

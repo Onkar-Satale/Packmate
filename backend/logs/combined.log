@@ -175,3 +175,5 @@
 {"ip":"::1","level":"warn","message":"400 - Invalid image detected. Please upload a clear photo of your own empty, open suitcase or travel bag for analysis. - /api/ai/analyze-suitcase - POST - ::1","method":"POST","service":"packmate-api","statusCode":400,"timestamp":"2026-07-12 14:09:41","url":"/api/ai/analyze-suitcase"}
 {"level":"info","message":"🚀 Server proudly serving requests on port 5000","service":"packmate-api","timestamp":"2026-07-13 10:49:34"}
 {"level":"info","message":"✅ MongoDB connected: 127.0.0.1","service":"packmate-api","timestamp":"2026-07-13 10:49:34"}
+{"level":"info","message":"🚀 Server proudly serving requests on port 5000","service":"packmate-api","timestamp":"2026-07-14 18:32:55"}
+{"level":"info","message":"✅ MongoDB connected: 127.0.0.1","service":"packmate-api","timestamp":"2026-07-14 18:32:55"}

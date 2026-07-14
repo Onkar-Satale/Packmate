@@ -16,8 +16,9 @@ app = FastAPI(title="🎒Smart Packing Assistant API")
 def pre_load_rag():
     try:
         logger.info("Starting background pre-loading of RAG model and ChromaDB...")
-        from app.services.rag import get_collection
+        from app.services.rag import get_collection, get_embedding_model
         get_collection()
+        get_embedding_model()
         logger.info("Successfully pre-loaded RAG model and ChromaDB cache in the background.")
     except Exception as e:
         logger.error(f"Failed to pre-load RAG model in background: {e}")

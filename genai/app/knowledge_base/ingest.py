@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import json
 import logging
@@ -9,9 +10,13 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Define paths
+# Define paths and ensure genai is in python path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_PATH = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), ".env")
+GENAI_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
+if GENAI_DIR not in sys.path:
+    sys.path.insert(0, GENAI_DIR)
+
+ENV_PATH = os.path.join(GENAI_DIR, ".env")
 load_dotenv(dotenv_path=ENV_PATH)
 
 PDFS_DIR = os.path.join(BASE_DIR, "pdfs")
@@ -59,31 +64,67 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 
 def split_text_into_chunks(text: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> list:
     """
-    Splits document text into chunks of specified characters, overlapping to retain context.
-    Splits at word boundaries (whitespace).
+    Splits text into chunks of maximum `chunk_size` characters with `chunk_overlap` overlap.
+    Uses a recursive splitting strategy on delimiters: \n\n, \n, space, and empty string.
+    This preserves document structure (paragraphs, lines, words) and formatting.
     """
-    words = text.split()
-    chunks = []
-    current_chunk = []
-    current_length = 0
+    if not text:
+        return []
+
+    delimiters = ["\n\n", "\n", " ", ""]
     
-    # Estimate average word length is 6 chars, so 200 chars overlap is ~30 words
-    overlap_word_count = 30
-    
-    for word in words:
-        current_chunk.append(word)
-        current_length += len(word) + 1 # +1 for space
-        if current_length >= chunk_size:
-            chunks.append(" ".join(current_chunk))
-            # Keep overlap words for the next chunk
-            overlap_words = current_chunk[-overlap_word_count:] if len(current_chunk) > overlap_word_count else current_chunk
-            current_chunk = list(overlap_words)
-            current_length = sum(len(w) + 1 for w in current_chunk)
-            
-    if current_chunk:
-        chunks.append(" ".join(current_chunk))
+    def _split(text_to_split: str, delimiters_list: list) -> list:
+        if len(text_to_split) <= chunk_size:
+            return [text_to_split]
+        if not delimiters_list:
+            return [text_to_split[i:i + chunk_size] for i in range(0, len(text_to_split), chunk_size)]
         
-    return [c for c in chunks if c.strip()]
+        delim = delimiters_list[0]
+        next_delimiters = delimiters_list[1:]
+        
+        if delim == "":
+            splits = list(text_to_split)
+        else:
+            splits = text_to_split.split(delim)
+            
+        chunks = []
+        current_segment = []
+        current_len = 0
+        
+        for part in splits:
+            if len(part) > chunk_size:
+                if current_segment:
+                    chunks.append(delim.join(current_segment))
+                    current_segment = []
+                    current_len = 0
+                sub_splits = _split(part, next_delimiters)
+                chunks.extend(sub_splits)
+            else:
+                added_len = len(part) + (len(delim) if current_segment else 0)
+                if current_len + added_len > chunk_size:
+                    chunks.append(delim.join(current_segment))
+                    # Retain overlap logic
+                    overlap_parts = []
+                    overlap_len = 0
+                    for p in reversed(current_segment):
+                        p_len = len(p) + (len(delim) if overlap_parts else 0)
+                        if overlap_len + p_len > chunk_overlap:
+                            break
+                        overlap_parts.insert(0, p)
+                        overlap_len += p_len
+                    current_segment = overlap_parts
+                    current_len = overlap_len
+                
+                current_segment.append(part)
+                current_len += len(part) + (len(delim) if len(current_segment) > 1 else 0)
+                
+        if current_segment:
+            chunks.append(delim.join(current_segment))
+            
+        return chunks
+
+    all_chunks = _split(text, delimiters)
+    return [c.strip() for c in all_chunks if c.strip()]
 
 def ingest_pdfs():
     """
@@ -119,7 +160,10 @@ def ingest_pdfs():
         except Exception as e:
             logger.debug(f"No collection to purge: {e}")
 
-    collection = client.get_or_create_collection(name="travel_assistant")
+    collection = client.get_or_create_collection(
+        name="travel_assistant",
+        metadata={"hnsw:space": "cosine"}
+    )
 
     # 1. Identify files to add or reprocess
     reprocessed_any = False
