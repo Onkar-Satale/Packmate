@@ -1,26 +1,58 @@
-# Node
+# Node & Frontend dependency/debug files
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.parcel-cache
+.cache/
+coverage/
+.nyc_output/
 
-# Env files
+# Env & configuration secrets
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Python
+# Python files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
 
-# Build
+# Python Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+pyvenv.cfg
+.python-version
+
+# Builds & Outputs
 dist/
 build/
-
-# OS
-.DS_Store
-
 backend/uploads/
+
+# Vector Database (ChromaDB)
+genai/app/knowledge_base/chroma_db/
 
 # Logs
 backend/logs/
 *.log
 
-# Vector Database (ChromaDB)
-genai/app/knowledge_base/chroma_db/
+# IDEs & Editor Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+.DS_Store
+Thumbs.db
