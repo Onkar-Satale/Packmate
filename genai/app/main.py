@@ -17,11 +17,27 @@ def pre_load_rag():
     try:
         logger.info("Starting background pre-loading of RAG model and ChromaDB...")
         from app.services.rag import get_collection, get_embedding_model
-        get_collection()
+        collection = get_collection()
         get_embedding_model()
         logger.info("Successfully pre-loaded RAG model and ChromaDB cache in the background.")
+        
+        # Self-healing fallback: If database is empty, run ingestion in the background
+        if collection is not None:
+            count = 0
+            try:
+                count = collection.count()
+            except Exception as e:
+                logger.warning(f"Failed to check ChromaDB document count: {e}")
+                
+            if count == 0:
+                logger.info("ChromaDB collection is empty! Running knowledge base ingestion in the background...")
+                from app.knowledge_base.ingest import ingest_pdfs
+                ingest_pdfs()
+                logger.info("Background knowledge base ingestion completed successfully.")
+            else:
+                logger.info(f"ChromaDB collection contains {count} documents. Ingestion skipped.")
     except Exception as e:
-        logger.error(f"Failed to pre-load RAG model in background: {e}")
+        logger.error(f"Failed to pre-load or ingest RAG model in background: {e}")
 
 threading.Thread(target=pre_load_rag, daemon=True).start()
 

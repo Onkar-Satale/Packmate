@@ -40,7 +40,7 @@ build/
 backend/uploads/
 
 # Vector Database (ChromaDB)
-genai/app/knowledge_base/chroma_db/
+# genai/app/knowledge_base/chroma_db/
 
 # Logs
 backend/logs/
