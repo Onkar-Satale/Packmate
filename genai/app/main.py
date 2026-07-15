@@ -59,6 +59,67 @@ def root():
     """
     return {"message": "Smart Packing Assistant API is live ✅"}
 
+@app.get("/debug/rag")
+def debug_rag():
+    """
+    Diagnostic endpoint to troubleshoot ChromaDB and Hugging Face embeddings in production.
+    """
+    import os
+    from app.services.rag import (
+        USE_LOCAL_EMBEDDINGS,
+        ON_RENDER,
+        get_collection,
+        embed_query,
+        retrieve_relevant_chunks
+    )
+    
+    hf_token = os.getenv("HF_TOKEN")
+    
+    result = {
+        "use_local_embeddings": USE_LOCAL_EMBEDDINGS,
+        "on_render": ON_RENDER,
+        "hf_token_configured": hf_token is not None and len(hf_token.strip()) > 0,
+        "chromadb": {},
+        "embedding_test": {},
+        "search_test": {}
+    }
+    
+    # Test ChromaDB Collection
+    try:
+        collection = get_collection()
+        if collection is not None:
+            result["chromadb"]["initialized"] = True
+            result["chromadb"]["document_count"] = collection.count()
+        else:
+            result["chromadb"]["initialized"] = False
+            result["chromadb"]["error"] = "Collection is None"
+    except Exception as e:
+        result["chromadb"]["initialized"] = False
+        result["chromadb"]["error"] = str(e)
+        
+    # Test Embedding Generation
+    try:
+        emb = embed_query("test query")
+        result["embedding_test"]["success"] = True
+        result["embedding_test"]["dims"] = len(emb) if emb else 0
+        result["embedding_test"]["error"] = None
+    except Exception as e:
+        result["embedding_test"]["success"] = False
+        result["embedding_test"]["error"] = str(e)
+        
+    # Test ChromaDB Retrieve Chunks
+    try:
+        res = retrieve_relevant_chunks("test query", n_results=3)
+        result["search_test"]["success"] = True
+        result["search_test"]["results_count"] = len(res.get("documents", [[]])[0]) if res else 0
+        result["search_test"]["error"] = None
+    except Exception as e:
+        result["search_test"]["success"] = False
+        result["search_test"]["error"] = str(e)
+        
+    return result
+
+
 # Include routers
 app.include_router(weather_router)
 app.include_router(packing_list_router)
