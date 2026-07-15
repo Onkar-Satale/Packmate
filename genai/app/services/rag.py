@@ -88,7 +88,7 @@ def query_huggingface_embeddings(texts: list) -> list:
     This bypasses the InferenceClient provider permissions issue and supports batching.
     """
     model_id = "sentence-transformers/all-MiniLM-L6-v2"
-    api_url = f"https://router.huggingface.co/hf-inference/models/{model_id}"
+    api_url = f"https://router.huggingface.co/hf-inference/models/{model_id}/pipeline/feature-extraction"
     
     hf_token = os.getenv("HF_TOKEN")
     headers = {}
