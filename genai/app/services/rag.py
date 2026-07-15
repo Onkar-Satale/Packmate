@@ -65,6 +65,13 @@ def get_embedding_model():
         with _model_lock:
             if _embedding_model is None:
                 try:
+                    # Optimize PyTorch CPU usage for container environments (avoid thread contention)
+                    import torch
+                    torch.set_num_threads(1)
+                    logger.info("Set PyTorch CPU threads to 1 for optimal container performance.")
+                except Exception as e:
+                    logger.debug(f"Failed to optimize PyTorch CPU threads: {e}")
+                try:
                     from sentence_transformers import SentenceTransformer
                     logger.info("Initializing local SentenceTransformer embedding model 'all-MiniLM-L6-v2'...")
                     _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -173,7 +180,7 @@ def embed_query(query: str) -> list:
             return res[0]
         raise ValueError(f"Unexpected response format from Hugging Face API: {res}")
 
-def retrieve_relevant_chunks(query_text: str, n_results: int = 7) -> dict:
+def retrieve_relevant_chunks(query_text: str, n_results: int = 4) -> dict:
     """
     Generates embedding for the query and retrieves matched document chunks from ChromaDB.
     """
@@ -272,7 +279,7 @@ def travel_chatbot(query: str) -> dict:
     logger.info(f"--- Processing query in travel_chatbot: '{query}' ---")
     
     # 1. Retrieve most similar chunks
-    results = retrieve_relevant_chunks(query, n_results=7)
+    results = retrieve_relevant_chunks(query, n_results=4)
     
     raw_documents = results.get("documents", [[]])[0] if results.get("documents") else []
     raw_metadatas = results.get("metadatas", [[]])[0] if results.get("metadatas") else []
