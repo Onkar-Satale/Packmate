@@ -12,8 +12,7 @@ except Exception as e:
     pass
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.config.settings import FRONTEND_URL, logger
+from app.config.settings import logger
 from app.routes.weather import router as weather_router
 from app.routes.packing_list import router as packing_list_router
 from app.routes.suitcase import router as suitcase_router
@@ -51,15 +50,6 @@ def pre_load_rag():
         logger.error(f"Failed to pre-load or ingest RAG model in background: {e}")
 
 threading.Thread(target=pre_load_rag, daemon=True).start()
-
-# Add CORS middleware to allow the React frontend to communicate with this backend.
-app.add_middleware(
-    CORSMiddleware, 
-    allow_origins=FRONTEND_URL,
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
-)
 
 # Health-check root endpoint
 @app.get("/")

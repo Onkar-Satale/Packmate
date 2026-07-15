@@ -14,6 +14,7 @@ ENV_PATH = BASE_DIR / ".env"
 # Load environment variables from the .env file into the os.environ dictionary
 load_dotenv(dotenv_path=ENV_PATH, override=True)
 
+
 # Retrieve API keys from environment variables
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -22,8 +23,4 @@ if not GROQ_API_KEY:
     raise Exception("GROQ_API_KEY not loaded!")
 
 GENAI_API_SECRET = os.getenv("GENAI_API_SECRET", "")
-
-# Allow frontend origins completely defined dynamically via .env
-frontend_env = os.getenv("FRONTEND_URL", "")
-FRONTEND_URL = [url.strip() for url in frontend_env.split(",") if url.strip()]
 
