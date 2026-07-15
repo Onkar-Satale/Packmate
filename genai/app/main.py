@@ -1,5 +1,16 @@
 import os
+import socket
 import threading
+
+# Force IPv4 DNS resolution to fix Docker/Alpine IPv6 DNS lookup bugs in cloud environments like Render
+try:
+    orig_getaddrinfo = socket.getaddrinfo
+    def getaddrinfo_ipv4(host, port, family=0, type=0, proto=0, flags=0):
+        return orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+    socket.getaddrinfo = getaddrinfo_ipv4
+except Exception as e:
+    pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import FRONTEND_URL, logger
