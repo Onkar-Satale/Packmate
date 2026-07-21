@@ -22,9 +22,6 @@ class TripService {
   async createTrip(userId, tripData) {
     const formattedData = formatIncomingData(tripData);
     formattedData.userId = userId;
-    
-    // Fallback normalization
-    formattedData.totalDays = formattedData.totalDays || formattedData.days;
 
     // Formatting for nested properties
     formattedData.laundry = formattedData.laundry === true || formattedData.laundry === "Yes";
