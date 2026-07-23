@@ -153,7 +153,7 @@ export default function SuitcaseAnalyzer({ packingList, setPackingList, trip, on
         <section className="card suitcase-analyzer-card">
             <h2>🧳 AI Vision Suitcase Analyzer</h2>
             <p className="suitcase-subtitle">
-                Please upload a clear photo of your own empty, open suitcase or travel bag taken from the top. Do not upload images of people, animals, vehicles, random objects, or unrelated scenes.
+                Please upload a clear photo of your suitcase(s) or travel bag(s). It is perfectly fine if the bag is open or closed, empty or packed, and contains normal room backgrounds.
             </p>
 
             <div className="upload-section">

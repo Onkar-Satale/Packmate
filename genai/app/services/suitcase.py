@@ -70,7 +70,7 @@ Do not include any markup, markdown wrapper, or code fence. Just return the JSON
 def call_groq_vision_model(prompt: str, image_base64: str) -> dict:
     """
     Sends the prompt and base64-encoded image to the Groq Vision LLM.
-    Attempts to query llama-4-maverick first, falling back to llama-4-scout if unavailable.
+    Queries the active qwen/qwen3.6-27b model.
     """
     client = Groq(api_key=GROQ_API_KEY)
     
@@ -80,8 +80,7 @@ def call_groq_vision_model(prompt: str, image_base64: str) -> dict:
     else:
         image_url = image_base64
 
-    model_name = "meta-llama/llama-4-maverick-17b-128e-instruct"
-    fallback_model = "meta-llama/llama-4-scout-17b-16e-instruct"
+    model_name = "qwen/qwen3.6-27b"
 
     try:
         logger.info(f"Attempting to query Groq vision model: {model_name}")
@@ -103,36 +102,12 @@ def call_groq_vision_model(prompt: str, image_base64: str) -> dict:
             ],
             temperature=0.2,
             max_completion_tokens=2048,
-            response_format={"type": "json_object"}
+            reasoning_effort="none"
         )
         return res
     except Exception as e:
-        if "model_not_found" in str(e) or "does not exist" in str(e) or "404" in str(e):
-            logger.warning(f"Model '{model_name}' not available. Falling back to '{fallback_model}'. Error: {e}")
-            res = client.chat.completions.create(
-                model=fallback_model,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": prompt},
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": image_url
-                                }
-                            }
-                        ]
-                    }
-                ],
-                temperature=0.2,
-                max_completion_tokens=2048,
-                response_format={"type": "json_object"}
-            )
-            return res
-        else:
-            logger.error(f"Error calling Groq vision model: {e}")
-            raise
+        logger.error(f"Error calling Groq vision model: {e}")
+        raise
 
 
 def parse_vision_response(raw_response: str) -> dict:
@@ -227,16 +202,16 @@ def build_validation_prompt() -> str:
     Builds the vision validation prompt to verify the uploaded image.
     """
     return """
-Analyze the uploaded image and verify whether it meets the following strict criteria:
-1. The image contains exactly one (a single) suitcase or travel bag.
-2. The suitcase or travel bag is empty and open.
-3. The suitcase or travel bag is clearly visible and the photo is clear (not blurry, not obstructed, not closed).
-4. The image DOES NOT contain people, animals, vehicles, random objects, unrelated scenes, multiple bags, or closed bags.
+Analyze the uploaded image and verify whether it contains suitable travel bags for analysis:
+1. The image must contain at least one suitcase, travel bag, duffel bag, backpack, or carry-on.
+2. The bag(s) must be clearly visible and not excessively blurry, obscured, or dark, so that their size can be estimated.
+3. The image must be a photo of physical bag(s), not a completely unrelated scene (like food, documents, landscapes, screenshots, or random people without bags).
+4. It is perfectly fine if the bag is open or closed, empty or partially packed, or if there are multiple bags (up to 3), or if there is a normal indoor/outdoor background (like a bedroom floor, bed, or hotel room).
 
 You must respond ONLY with a JSON object of this structure:
 {
   "valid": true or false,
-  "reason": "A short sentence explaining why the image is valid, or specifically why it is invalid."
+  "reason": "A short, user-friendly explanation of why the image was accepted or specifically why it was rejected."
 }
 Do not include any markup, markdown wrapper, or code fence. Just return the JSON object directly.
 """

@@ -15,9 +15,10 @@ def api_analyze_suitcase(req: SuitcaseAnalysisRequest):
     # 1. Validate the uploaded image first
     validation = validate_suitcase_image(req.image_base64)
     if not validation.get("valid"):
+        reason = validation.get("reason", "Please upload a clear photo of your suitcase or travel bag for analysis.")
         raise HTTPException(
             status_code=400,
-            detail="Invalid image detected. Please upload a clear photo of your own empty, open suitcase or travel bag for analysis."
+            detail=f"Invalid image: {reason}"
         )
         
     # 2. Fetch/compute weather
