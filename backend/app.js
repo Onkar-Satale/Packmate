@@ -12,8 +12,6 @@ import aiRoutes from './routes/ai.js';
 import * as aiController from './controllers/aiController.js';
 import { chatValidator } from './validators/aiValidator.js';
 
-
-
 const app = express();
 app.set("trust proxy", 1);
 
@@ -40,8 +38,6 @@ app.use(cors({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser()); // Enable HTTP-only cookie parsing
-
-
 
 // 3. Activity Logging
 app.use(morgan("dev"));
