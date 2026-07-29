@@ -56,3 +56,5 @@ backend/logs/
 *.sw*
 .DS_Store
 Thumbs.db
+
+temp.txt
