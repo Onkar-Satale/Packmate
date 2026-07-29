@@ -1,6 +1,6 @@
 import express from 'express';
-import rateLimit from 'express-rate-limit';
 import authMiddleware from '../middlewares/auth.js';
+import { aiRateLimiter } from '../middlewares/rateLimiter.js';
 import {
   prefetchWeatherValidator,
   generatePackingListValidator,
@@ -10,13 +10,6 @@ import {
 import * as aiController from '../controllers/aiController.js';
 
 const router = express.Router();
-
-// Extremely strict rate limiting for AI generation to prevent abuse, similar to what Python had
-const aiLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 5, // 5 requests per minute
-  message: { success: false, message: "Too many AI requests, please try again later." },
-});
 
 // We enforce authentication for all AI routes, explicitly protecting our LLM infrastructure
 router.use(authMiddleware);
@@ -28,7 +21,7 @@ router.post(
 
 router.post(
   "/generate-packing-list",
-  aiLimiter,
+  aiRateLimiter,
   generatePackingListValidator,
   aiController.generatePackingList
 );
@@ -41,6 +34,7 @@ router.post(
 
 router.post(
   "/analyze-suitcase",
+  aiRateLimiter,
   analyzeSuitcaseValidator,
   aiController.analyzeSuitcase
 );
