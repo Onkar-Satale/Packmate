@@ -24,5 +24,5 @@ if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  logger.info(`🚀 Server proudly serving requests on port ${PORT}`);
+  logger.info(`🚀 Server running on port ${PORT}`);
 });
