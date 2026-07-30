@@ -1,313 +1,273 @@
-# 🌍 PackMate: AI-Powered Smart Travel & Packing Assistant
+# ⚡ PackMate – AI-Powered Smart Travel & Packing Assistant
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Frontend](https://img.shields.io/badge/Frontend-React.js-blue)](https://reactjs.org/)
-[![Backend](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express-green)](https://nodejs.org/)
-[![AI Microservice](https://img.shields.io/badge/AI%20Microservice-Python%20FastAPI-009688)](https://fastapi.tiangolo.com/)
-[![LLM API](https://img.shields.io/badge/LLM-Groq%20%28Llama%203%29-orange)](https://groq.com/)
-[![Vector DB](https://img.shields.io/badge/Vector%20DB-ChromaDB-purple)](https://www.trychroma.com/)
-[![Database](https://img.shields.io/badge/Database-MongoDB%20Atlas-brightgreen)](https://www.mongodb.com/cloud/atlas)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://packmatefrontend.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![NodeJS](https://img.shields.io/badge/Node.js-Express-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Database-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Groq](https://img.shields.io/badge/Groq-AI%20LLM-F05032?style=for-the-badge&logo=openai&logoColor=white)](https://groq.com/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20DB-purple?style=for-the-badge)](https://www.trychroma.com/)
 
-**PackMate** is an enterprise-grade, full-stack, AI-powered travel management system. It automates trip planning, generates weather-conscious packing lists, performs **Vision AI suitcase verification**, provides **RAG-based travel advisory chat**, and offers end-to-end trip journaling with photo management.
-
-Built with a decoupled microservice architecture, PackMate pairs a **React frontend**, a **Node.js/Express API gateway**, a **Python FastAPI GenAI microservice**, a **MongoDB Atlas database**, and a **ChromaDB vector database**.
-
----
-
-## 🎯 Key Highlights & Value Proposition
-
-- 🤖 **Context-Aware AI Generation**: Leverages LLMs (Groq / Llama 3) and real-time weather forecasts (OpenCage Geocoding) to auto-generate personalized packing lists tailored to duration, destination, activities, and luggage limits.
-- 👁️ **Vision AI Suitcase Analysis**: Allows travelers to upload photos of their packed or unpacked bags. The Vision AI model inspects the image and automatically reconciles item status against the packing list.
-- 💬 **RAG Travel Chatbot**: Intelligent travel advisor backed by ChromaDB vector search and local travel guide PDFs, delivering precise advice without hallucinating.
-- 📄 **Streaming DOCX Export**: Converts interactive packing lists into beautifully formatted, downloadable Microsoft Word (`.docx`) documents on demand.
-- 🔐 **Production-Ready Security**: Enforces JWT authentication, refresh token rotation, bcrypt password hashing, rate limiting, and payload validators.
+**PackMate** is an enterprise-grade, full-stack, AI-powered travel management platform. Built as an intelligent, automated travel companion, PackMate provides weather-conscious packing list generation, **Vision AI suitcase verification**, **RAG-based travel advisory chat** powered by ChromaDB vector search & airline PDF guides, end-to-end trip journaling, photo storage, and streaming `.docx` export capabilities.
 
 ---
 
-## 🏗️ System Architecture & Design
+## 🌐 Live Demos
 
-PackMate is engineered using a **decoupled microservices architecture** to ensure modularity, independent scalability, and clean separation of concerns.
+| Service | Host Platform | Live URL |
+| :--- | :--- | :--- |
+| **Frontend Application** | Vercel | [https://packmatefrontend.vercel.app/](https://packmatefrontend.vercel.app/) |
+| **Express Backend API** | Render | [https://packmate-backend.onrender.com/](https://packmate-backend.onrender.com/) |
+| **GenAI FastAPI Microservice** | Render | [https://packmate69.onrender.com/](https://packmate69.onrender.com/) |
+
+---
+
+## ✨ Key Features
+
+- 🤖 **Context-Aware AI Packing Assistant:** Generates personalized, weather-conscious packing lists tailored to duration, destination, activities, party size, and luggage limits using Groq LLM (Llama 3).
+- 👁️ **Vision AI Suitcase Scanner:** One-click image analysis of packed or unpacked suitcases using Vision LLM to automatically reconcile items against your packing list.
+- 💬 **RAG Travel Advisor Chatbot:** Knowledge-base retrieval engine powered by ChromaDB vector search and local travel guide PDFs, delivering precise, hallucination-free travel advice.
+- 🌦️ **Real-Time Live Weather Forecasts:** Integrates OpenCage Geocoding API to compute destination weather conditions and dynamically adjust clothing & essential suggestions.
+- 🗺️ **Comprehensive Trip CRUD & Journaling:** Manage trips, itineraries, custom packing checkboxes, traveler lists, and personal travel notes.
+- 📸 **Cloud Photo Storage:** Upload and manage trip photo memories seamlessly integrated with Cloudinary CDN.
+- 📄 **Streaming DOCX Export:** Download interactive packing lists instantly formatted as Microsoft Word (`.docx`) files.
+- 🔒 **Enterprise-Grade Security:** JWT-based user authentication featuring access/refresh token rotation, bcrypt password hashing, rate limiting, and input validation.
+
+---
+
+## 🧠 System Architecture & Design
+
+PackMate uses a decoupled microservices architecture designed for high throughput, security, and real-time AI diagnostic capabilities.
 
 <div align="center">
-  <img src="assets/System_Design.png" alt="PackMate System Architecture" width="850" />
-  <p><em>High-level architecture showing React Frontend, Node.js Backend Gateway, MongoDB Atlas, FastAPI GenAI Service, Groq LLM API, ChromaDB Vector DB, and Local Knowledge Base.</em></p>
-</div>
 
----
+![PackMate System Architecture](assets/System_Design.png?raw=true)
 
-## 📸 Application Screenshots
-
-<div align="center">
-
-### 🏠 Landing Page
-<img src="assets/LandingPage.png" width="750" alt="Landing Page" />
-<p><em>Modern landing page featuring theme switching, travel highlights, and quick feature access.</em></p>
-
-### 🔑 Authentication & Login
-<img src="assets/Login.png" width="750" alt="Login Page" />
-<p><em>Secure JWT login interface with password hashing and session management.</em></p>
-
-### 💡 How It Works
-<img src="assets/HowItWorks.png" width="750" alt="How It Works" />
-<p><em>Interactive workflow guide explaining the AI packing generation lifecycle.</em></p>
-
-### 📋 AI Packing List Generation
-<img src="assets/Generating_PackingList.png" width="750" alt="Generating Packing List" />
-<p><em>Real-time packing list generation tailored to weather forecasts and activity types.</em></p>
-
-### 👤 User Account & Profile
-<img src="assets/AccountPage.png" width="750" alt="Account Page" />
-<p><em>User profile dashboard displaying trip stats, active itineraries, and settings.</em></p>
-
-### 📞 Contact & Support
-<img src="assets/Contact.png" width="750" alt="Contact Page" />
-<p><em>User feedback and support communication channel.</em></p>
+*Comprehensive System Design Architecture Diagram illustrating React Frontend SPA, Node.js API Gateway, Python GenAI Microservice, Groq LLM Cloud Engine, ChromaDB Vector DB, and MongoDB Atlas.*
 
 </div>
 
 ---
 
-## 🔄 End-to-End Data Flow
+## 📂 Repository Structure
 
-### 1. AI Packing List Generation Flow
-1. **User Request**: User fills out destination, dates, trip type, luggage type, travelers, and food preferences on the React Frontend.
-2. **Gateway Verification**: React sends an authenticated POST request to Node.js Backend (`/api/ai/generate-packing-list`). Node validates the JWT and checks rate limits.
-3. **AI Service Call**: Backend proxies the request to FastAPI GenAI Service (`/generate-packing-list`).
-4. **Weather Fetching**: FastAPI queries the OpenCage Geocoding API to retrieve coordinates and computes multi-day weather conditions.
-5. **LLM Prompt Execution**: FastAPI formats a structured system prompt and invokes Groq (Llama 3).
-6. **Caching & Response**: Result is saved in an in-memory TTL cache (5 min) and returned back to the Frontend.
-7. **Database Sync**: When the user saves the trip, the list is persisted to MongoDB Atlas inside the user's trip document.
-
-### 2. Vision AI Suitcase Analysis Flow
-1. **Image Capture**: User uploads a photo of their suitcase bag/contents.
-2. **Validation**: FastAPI inspects the image base64 format and validates image clarity.
-3. **Vision LLM Processing**: The image is analyzed alongside weather conditions and current trip items using Groq Vision capabilities.
-4. **Reconciliation**: The model returns packed vs. missing items and auto-updates item checkmarks.
-
-### 3. RAG Travel Advisor Chatbot Flow
-1. **PDF Ingestion**: Local travel guides and packing tips in `genai/app/knowledge_base/pdfs` are chunked and converted into vector embeddings using HuggingFace sentence transformers.
-2. **ChromaDB Indexing**: Embeddings are stored in ChromaDB vector database collections.
-3. **User Query**: When a user chats with the AI Travel Advisor, a similarity search retrieves relevant PDF context chunks.
-4. **Augmented Prompt**: Groq Llama 3 synthesizes a contextualized response using the retrieved knowledge chunks.
-
----
-
-## 🛠️ Microservices & Tech Stack Breakdown
-
-### 1. Frontend (`/frontend`)
-- **Framework**: React.js 18
-- **Routing**: React Router v6
-- **HTTP Client**: Axios with request/response interceptors
-- **Styling**: Modern CSS3, responsive design, dark/light theme options
-- **State Management**: React Context API & Hooks
-
-### 2. Backend API Gateway (`/backend`)
-- **Runtime**: Node.js & Express.js
-- **Database**: MongoDB Atlas via Mongoose ODM
-- **Authentication**: JSON Web Tokens (JWT) + HTTP-only Refresh Tokens + `bcryptjs`
-- **Media Management**: Cloudinary SDK (Image storage for trip photos)
-- **Security & Utilities**: `express-rate-limit`, `cors`, custom request validators
-
-### 3. AI Microservice (`/genai`)
-- **Framework**: Python 3.10+ & FastAPI
-- **LLM Provider**: Groq API (`llama3-70b-8192` / `llama-3.2-11b-vision-preview`)
-- **Vector Database**: ChromaDB
-- **Embeddings**: `sentence-transformers` / HuggingFace
-- **Weather API**: OpenCage Geocoding API
-- **Document Processing**: `python-docx` for `.docx` creation, `pypdf` / `langchain` text splitters for PDF RAG ingestion
+```
+PackMate_deployed/
+├── assets/                     # Application screenshots & architecture diagrams
+│   ├── System_Design.png
+│   ├── LandingPage.png
+│   ├── Login.png
+│   ├── HowItWorks.png
+│   ├── Generating_PackingList.png
+│   ├── AccountPage.png
+│   └── Contact.png
+├── backend/                    # Node.js + Express REST API Server
+│   ├── config/                 # DB, Cloudinary & environment configuration
+│   ├── controllers/            # Auth, Trip & AI route controllers
+│   ├── middlewares/            # JWT auth, rate limiting, validation
+│   ├── models/                 # Mongoose schemas (User, Trip)
+│   ├── routes/                 # Express API endpoints (/api/auth, /api/trips, /api/ai)
+│   ├── services/               # GenAI proxy integration service
+│   ├── app.js                  # Express app initialization
+│   ├── server.js               # Server entry point
+│   └── package.json
+├── frontend/                   # React.js Single Page Application
+│   ├── public/
+│   ├── src/                    # Components, pages, context, and styles
+│   ├── package.json
+│   └── vercel.json
+└── genai/                      # Python FastAPI GenAI Microservice
+    ├── app/                    # FastAPI routes, schemas, RAG & LLM logic
+    │   ├── knowledge_base/     # ChromaDB vector database & 12 travel PDF documents
+    │   ├── routes/             # FastAPI routers (chat, packing, suitcase, weather)
+    │   └── services/           # Groq LLM, RAG retriever, Vision analyzer
+    ├── main.py                 # Uvicorn entry point
+    ├── requirements.txt        # Python dependencies
+    └── Dockerfile              # Container deployment file
+```
 
 ---
 
-## 📡 API Endpoint Specification
+## 🛠️ Tech Stack
 
-### 🔑 Auth Endpoints (`/api/auth`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :---: |
-| `POST` | `/api/auth/register` | Register a new user account | ❌ |
-| `POST` | `/api/auth/login` | Authenticate user & issue JWT tokens | ❌ |
-| `POST` | `/api/auth/refresh` | Refresh access token using refresh token | ❌ |
-| `POST` | `/api/auth/logout` | Revoke tokens & clear session | 🟢 |
-
-### 🗺️ Trip Management Endpoints (`/api/trips`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :---: |
-| `GET` | `/api/trips` | Fetch all trips for authenticated user | 🟢 |
-| `POST` | `/api/trips` | Create a new trip with packing items | 🟢 |
-| `GET` | `/api/trips/:id` | Fetch specific trip details by ID | 🟢 |
-| `PUT` | `/api/trips/:id` | Update trip details or packing list | 🟢 |
-| `DELETE`| `/api/trips/:id` | Delete trip itinerary | 🟢 |
-| `POST` | `/api/trips/:id/photos` | Upload trip photos to Cloudinary | 🟢 |
-
-### 🤖 AI Service Endpoints (`/api/ai` & FastAPI)
-| Method | Endpoint | Description | Provider |
-| :--- | :--- | :--- | :---: |
-| `POST` | `/api/ai/prefetch-weather` | Fetch weather summary for trip dates | OpenCage / Weather API |
-| `POST` | `/api/ai/generate-packing-list` | Generate weather-aware packing list | Groq Llama 3 |
-| `POST` | `/api/ai/download-packing-list` | Export packing list as `.docx` file | `python-docx` |
-| `POST` | `/api/ai/analyze-suitcase` | Vision AI photo scan of packing bag | Groq Vision LLM |
-| `POST` | `/travel-chat` | RAG travel advisory chat query | ChromaDB + Llama 3 |
+| Tier | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | React 18, React Router v6, Axios, Custom CSS3 | Interactive UI & Travel Management Client |
+| **Primary Backend** | Node.js, Express.js, Mongoose ODM, Winston | Core API Gateway, Auth, Trip CRUD Operations |
+| **AI Microservice** | Python 3.10+, FastAPI, Uvicorn, Groq SDK | GenAI Packing Engine, Vision AI & RAG Advisor |
+| **Vector DB** | ChromaDB, HuggingFace Sentence Transformers | Vector store for travel guide PDF embeddings |
+| **Database** | MongoDB / MongoDB Atlas | Persistent storage for users, trips, & tokens |
+| **Security** | JWT, bcryptjs, Express Rate Limit | Token Auth, Password Encryption, API Security |
+| **Cloud Services** | Cloudinary, OpenCage API | Media Cloud Storage & Real-Time Weather Geocoding |
+| **Hosting & DevOps** | Vercel, Render, Docker | Continuous Deployment & Microservice Hosting |
 
 ---
 
-## 💻 Local Setup & Installation Guide
+## ⚙️ Environment Configuration
 
-### Prerequisites
-- **Node.js** (v18.x or higher) & **npm**
-- **Python** (v3.10 or higher)
-- **MongoDB Atlas** database connection URI
-- **Groq API Key** ([console.groq.com](https://console.groq.com/))
-- **OpenCage API Key** ([opencagedata.com](https://opencagedata.com/))
-- **Cloudinary Account** credentials (for photo uploads)
+Before running the application locally, set up the `.env` configuration files for each component service.
 
----
-
-### 1. Environment Configuration
-
-Create `.env` files in each service directory:
-
-#### `backend/.env`
+### 1. Backend Configuration (`backend/.env`)
 ```env
 PORT=5000
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/packmate
-JWT_SECRET=your_super_secret_jwt_key
-JWT_REFRESH_SECRET=your_super_secret_refresh_key
+JWT_SECRET=your_jwt_access_secret_key
+JWT_REFRESH_SECRET=your_jwt_refresh_secret_key
 GENAI_SERVICE_URL=http://127.0.0.1:8000
-GENAI_API_KEY=your_genai_microservice_api_key
+GENAI_API_KEY=your_shared_inter_service_secret
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 ```
 
-#### `genai/.env`
+### 2. Frontend Configuration (`frontend/.env`)
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_GENAI_URL=http://localhost:8000
+REACT_APP_GENAI_API_KEY=your_shared_inter_service_secret
+```
+
+### 3. AI Service Configuration (`genai/.env`)
 ```env
 PORT=8000
 GROQ_API_KEY=your_groq_api_key
 OPENCAGE_API_KEY=your_opencage_api_key
-API_KEY=your_genai_microservice_api_key
-```
-
-#### `frontend/.env`
-```env
-REACT_APP_API_URL=http://localhost:5000/api
-REACT_APP_GENAI_URL=http://localhost:8000
-REACT_APP_GENAI_API_KEY=your_genai_microservice_api_key
+API_KEY=your_shared_inter_service_secret
 ```
 
 ---
 
-### 2. Microservices Setup & Execution
+## 🚀 Local Installation & Setup
 
-#### 🔹 Step A: Backend API Gateway (Node.js)
+### Prerequisites
+- **Node.js**: v18.x or higher
+- **Python**: v3.10 or higher
+- **MongoDB**: MongoDB Atlas URI or Local instance running on port `27017`
+- **Groq API Key**: Obtainable from [Groq Console](https://console.groq.com/)
+- **OpenCage API Key**: Obtainable from [OpenCage Data](https://opencagedata.com/)
+
+---
+
+### Step-by-Step Setup
+
+#### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/Onkar-Satale/Packmate.git
+cd Packmate
+```
+
+#### 2️⃣ Setup & Start Express Backend
 ```bash
 cd backend
 npm install
 npm start
 ```
-*Backend will start on `http://localhost:5000`*
+> *Backend server runs at:* `http://localhost:5000`
 
----
-
-#### 🔹 Step B: AI Microservice (Python FastAPI)
-
-**On Windows:**
+#### 3️⃣ Setup & Start FastAPI GenAI Microservice
+Open a new terminal window:
 ```bash
 cd genai
+
+# Create virtual environment
 python -m venv venv
-venv\Scripts\activate
+
+# Activate virtual environment
+# Windows (PowerShell / CMD):
+.\venv\Scripts\activate
+# macOS / Linux:
+source venv/bin/activate
+
+# Install dependencies and ingest RAG vectors
 pip install -r requirements.txt
 python -m app.knowledge_base.ingest
+
+# Start GenAI FastAPI server
 uvicorn main:app --reload --port 8000
 ```
+> *GenAI service runs at:* `http://127.0.0.1:8000`
 
-**On macOS / Linux:**
-```bash
-cd genai
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python3 -m app.knowledge_base.ingest
-uvicorn main:app --reload --port 8000
-```
-*FastAPI GenAI Service will start on `http://127.0.0.1:8000`*
-
----
-
-#### 🔹 Step C: Frontend UI (React)
+#### 4️⃣ Setup & Start React Frontend
+Open a third terminal window:
 ```bash
 cd frontend
 npm install
 npm start
 ```
-*Frontend application will open on `http://localhost:3000`*
+> *Frontend web app runs at:* `http://localhost:3000`
 
 ---
 
-## 📂 Project Directory Structure
+## 📡 API Reference Overview
 
-```text
-PackMate_deployed/
-├── assets/                       # Screenshots, System Architecture Diagrams
-│   ├── AccountPage.png
-│   ├── Contact.png
-│   ├── Generating_PackingList.png
-│   ├── HowItWorks.png
-│   ├── LandingPage.png
-│   ├── Login.png
-│   └── System_Design.png
-├── backend/                      # Node.js & Express API Gateway
-│   ├── config/                   # DB, Cloudinary & environment configs
-│   ├── controllers/              # Auth, Trip & AI route controllers
-│   ├── middlewares/              # Auth JWT middleware, Rate limiting, Uploads
-│   ├── models/                   # Mongoose Data Models (User, Trip, Tokens)
-│   ├── routes/                   # Auth, Trips & AI Express routers
-│   ├── services/                 # Business logic & Axios GenAI proxy
-│   ├── validators/               # Input schema validation rules
-│   ├── app.js                    # Express application setup
-│   └── server.js                 # Server entry point
-├── genai/                        # Python FastAPI AI Microservice
-│   ├── app/
-│   │   ├── config/               # Settings, logging & API keys
-│   │   ├── knowledge_base/       # RAG Vector Ingestion & PDF Store
-│   │   │   ├── chroma_db/        # Persistent ChromaDB vector data
-│   │   │   ├── pdfs/             # Travel guides & packing checklists
-│   │   │   └── ingest.py         # Embedding generation script
-│   │   ├── routes/               # FastAPI endpoints (chat, packing, suitcase, weather)
-│   │   ├── schemas/              # Pydantic data validation schemas
-│   │   └── services/             # Groq LLM, RAG retriever, Vision analyzer logic
-│   ├── Dockerfile                # Docker container configuration
-│   ├── main.py                   # FastAPI entry point
-│   └── requirements.txt          # Python dependencies
-├── frontend/                     # React Single Page Application
-│   ├── public/                   # Static assets & index.html
-│   ├── src/
-│   │   ├── components/           # Reusable components (Navbar, Footer, SuitcaseAnalyzer, etc.)
-│   │   ├── pages/                # Page views (Home, Login, PackingAssistant, TripDetails, etc.)
-│   │   ├── App.js                # Router configuration
-│   │   └── index.js              # React DOM entry point
-│   └── vercel.json               # Vercel deployment configuration
-└── README.md                     # Complete System Documentation
-```
+| Endpoint | Method | Auth Required | Description |
+| :--- | :--- | :--- | :--- |
+| `/api/auth/register` | `POST` | No | Register a new user account |
+| `/api/auth/login` | `POST` | No | Authenticate user and issue JWT tokens |
+| `/api/auth/refresh` | `POST` | No | Obtain new access token via refresh token |
+| `/api/auth/logout` | `POST` | Yes | Revoke tokens and end session |
+| `/api/trips` | `GET` | Yes | Fetch all trips for authenticated user |
+| `/api/trips` | `POST` | Yes | Create a new trip itinerary & packing list |
+| `/api/trips/:id` | `PUT` | Yes | Update trip details or packing checkmarks |
+| `/api/trips/:id` | `DELETE` | Yes | Delete a trip itinerary |
+| `/api/trips/:id/photos` | `POST` | Yes | Upload trip photos to Cloudinary CDN |
+| `/api/ai/prefetch-weather` | `POST` | Yes | Fetch destination weather forecast via OpenCage |
+| `/api/ai/generate-packing-list` | `POST` | Yes | Generate weather-aware AI packing list via Groq LLM |
+| `/api/ai/download-packing-list` | `POST` | Yes | Export packing list to downloadable `.docx` file |
+| `/api/ai/analyze-suitcase` | `POST` | Yes | Vision AI scan of suitcase photo to check packed items |
+| `/travel-chat` | `POST` | Yes | RAG-based travel advisory chat with ChromaDB & PDFs |
 
 ---
 
-## 🚀 Cloud Deployment Architecture
+## 📸 Screenshots & Visual Walkthrough
 
-- **Frontend**: Deployed on **Vercel** (`https://packmatefrontend.vercel.app`)
-- **Backend API Gateway**: Deployed on **Render** (`https://packmate-backend.onrender.com`)
-- **AI Microservice**: Deployed on **Render** (`https://packmate69.onrender.com`)
-- **Database**: **MongoDB Atlas** (Managed Cloud Database)
-- **Media Assets**: **Cloudinary CDN**
+<div align="center">
 
-*Note: Services hosted on Render free tier may require up to 30 seconds to spin up after periods of inactivity.*
+### 📋 AI Packing List Generation
+![Generating Packing List](assets/Generating_PackingList.png?raw=true)
+*AI generates a structured, weather-conscious packing list based on trip details.*
+
+### 💡 AI Workflow & How It Works
+![How It Works](assets/HowItWorks.png?raw=true)
+*Step-by-step interactive workflow explaining the AI packing generation lifecycle.*
+
+### 🔑 Authentication & Security
+| Login Interface | Account Profile |
+| :---: | :---: |
+| ![Login Page](assets/Login.png?raw=true) | ![Account Page](assets/AccountPage.png?raw=true) |
+| *Secure user login with JWT and password hashing.* | *Manage user profile, active trips, and settings.* |
+
+### 🏠 Landing Page & Contact Support
+| Landing Page | Contact Us |
+| :---: | :---: |
+| ![Landing Page](assets/LandingPage.png?raw=true) | ![Contact Page](assets/Contact.png?raw=true) |
+| *Main landing page with light/dark theme options.* | *User feedback and support communication channel.* |
+
+</div>
 
 ---
 
-## 🛡️ License
+## 🤝 Contributing
+
+Contributions are greatly appreciated! To contribute:
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to the branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
+
+---
+
+## 📄 License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
-<div align="center">
-  <sub>Built with ❤️ by the PackMate Engineering Team</sub>
-</div>
+## 👨‍💻 Author & Maintainer
+
+- **Onkar Satale**
+- **GitHub:** [@Onkar-Satale](https://github.com/Onkar-Satale)
+- **Project Repo:** [Packmate Repository](https://github.com/Onkar-Satale/Packmate)
