@@ -1,5 +1,5 @@
-import User from '../models/User.js';
-import Trip from '../models/Trip.js';
+import User from '../models/userModel.js';
+import Trip from '../models/tripModel.js';
 import jwt from 'jsonwebtoken';
 
 class AuthService {
@@ -14,7 +14,7 @@ class AuthService {
   }
 
   async registerUser(userData) {
-    // Password hashing is now intercepted inherently by User.js
+    // Password hashing is now intercepted inherently by userModel.js
     const user = await User.create(userData);
     return user;
   }

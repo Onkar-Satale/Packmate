@@ -1,6 +1,6 @@
 import express from 'express';
-import authMiddleware from '../middlewares/auth.js';
-import { aiRateLimiter } from '../middlewares/rateLimiter.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
+import { aiRateLimiter } from '../middlewares/rateLimiterMiddleware.js';
 import {
   prefetchWeatherValidator,
   generatePackingListValidator,

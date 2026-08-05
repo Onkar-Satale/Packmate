@@ -1,5 +1,5 @@
 import express from 'express';
-import auth from '../middlewares/auth.js';
+import auth from '../middlewares/authMiddleware.js';
 import { upload } from '../config/cloudinary.js';
 import * as tripController from '../controllers/tripController.js';
 import { tripValidator, updateTripValidator } from '../validators/tripValidator.js';

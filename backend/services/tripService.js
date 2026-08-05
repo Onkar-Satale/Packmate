@@ -1,4 +1,4 @@
-import Trip from '../models/Trip.js';
+import Trip from '../models/tripModel.js';
 import ApiError from '../utils/ApiError.js';
 
 const formatIncomingData = (data) => {

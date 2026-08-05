@@ -3,12 +3,12 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import errorHandler from './middlewares/errorHandler.js';
-import { apiRateLimiter } from './middlewares/rateLimiter.js';
+import errorHandler from './middlewares/errorHandlerMiddleware.js';
+import { apiRateLimiter } from './middlewares/rateLimiterMiddleware.js';
 import logger from './utils/logger.js';
-import authRoutes from './routes/auth.js';
-import tripRoutes from './routes/trips.js';
-import aiRoutes from './routes/ai.js';
+import authRoutes from './routes/authRoute.js';
+import tripRoutes from './routes/tripRoute.js';
+import aiRoutes from './routes/aiRoute.js';
 import * as aiController from './controllers/aiController.js';
 import { chatValidator } from './validators/aiValidator.js';
 

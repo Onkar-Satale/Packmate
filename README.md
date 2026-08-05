@@ -65,9 +65,9 @@ PackMate_deployed/
 ├── backend/                    # Node.js + Express REST API Server
 │   ├── config/                 # DB, Cloudinary & environment configuration
 │   ├── controllers/            # Auth, Trip & AI route controllers
-│   ├── middlewares/            # JWT auth, rate limiting, validation
-│   ├── models/                 # Mongoose schemas (User, Trip)
-│   ├── routes/                 # Express API endpoints (/api/auth, /api/trips, /api/ai)
+│   ├── middlewares/            # JWT auth, rate limiting, validation (authMiddleware.js, rateLimiterMiddleware.js, errorHandlerMiddleware.js)
+│   ├── models/                 # Mongoose schemas (userModel.js, tripModel.js)
+│   ├── routes/                 # Express API endpoints (authRoute.js, tripRoute.js, aiRoute.js)
 │   ├── services/               # GenAI proxy integration service
 │   ├── app.js                  # Express app initialization
 │   ├── server.js               # Server entry point

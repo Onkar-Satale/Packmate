@@ -1,8 +1,8 @@
 import express from 'express';
 import { register, login, refreshToken, logout, deleteAccount } from '../controllers/authController.js';
 import { registerValidator, loginValidator } from '../validators/authValidator.js';
-import auth from '../middlewares/auth.js';
-import { authRateLimiter } from '../middlewares/rateLimiter.js';
+import auth from '../middlewares/authMiddleware.js';
+import { authRateLimiter } from '../middlewares/rateLimiterMiddleware.js';
 
 const router = express.Router();
 
