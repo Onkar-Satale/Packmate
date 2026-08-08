@@ -1,3 +1,5 @@
+// Express application setup, configuring security headers, CORS policy, body parsers, logging, rate limiting, and route mounts
+
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -15,15 +17,16 @@ import { chatValidator } from './validators/aiValidator.js';
 const app = express();
 app.set("trust proxy", 1);
 
-// 1. Security Middlewares
+// Security Headers & Dynamic CORS configuration
 app.use(helmet());
+
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',').map(url => url.trim())
   : [];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Dynamically allow origins hitting the local proxy from dev servers
+    // Dynamically allow requests from allowed origins or local development servers
     if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
       callback(null, true);
     } else {
@@ -34,29 +37,29 @@ app.use(cors({
   credentials: true
 }));
 
-// 2. Parsers
+// Request Body & Cookie Parsers
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use(cookieParser()); // Enable HTTP-only cookie parsing
+app.use(cookieParser());
 
-// 3. Activity Logging
+// HTTP Request Logging
 app.use(morgan("dev"));
 
-// 4. Rate Limiting
+// API Rate Limiting
 app.use("/api", apiRateLimiter);
 
-// 5. Mount API Routes
+// API Route Mounts
 app.post('/api/travel-chat', chatValidator, aiController.travelChat);
 app.use('/api', authRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/ai', aiRoutes);
 
-// Health check
+// Health Check Endpoint
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'Backend is running securely' });
 });
 
-// 6. Centralized Error Pipeline
+// Centralized Error Handling Pipeline
 app.use(errorHandler);
 
 export default app;

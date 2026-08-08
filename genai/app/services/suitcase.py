@@ -1,8 +1,11 @@
+# Vision service module for AI suitcase capacity validation and packing list optimization
+
 import re
 import json
 from fastapi import HTTPException
 from groq import Groq
 from app.config.settings import GROQ_API_KEY, logger
+
 
 def clean_item_name(item: str) -> str:
     """

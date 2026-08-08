@@ -1,3 +1,5 @@
+// Mongoose Trip schema containing itinerary details, traveler profiles, packing categories, notes, and uploaded photos
+
 import mongoose from 'mongoose';
 
 const TravelerSchema = new mongoose.Schema({
@@ -24,41 +26,41 @@ const TripSchema = new mongoose.Schema({
     required: [true, "Trip must belong to a user"]
   },
 
-  // -------- Trip Basics --------
+  // Itinerary Details
   destination: { type: String, required: [true, "Destination is required"], trim: true },
   startDate: { type: Date, required: [true, "Start date is required"] },
   endDate: { type: Date, required: [true, "End date is required"] },
   totalDays: { type: Number, min: 1 },
   tripType: { type: String, trim: true },
 
-  // -------- Travel & Stay --------
+  // Travel & Accommodation
   travelMode: { type: String, trim: true },
   accommodation: { type: String, trim: true },
   roomType: { type: String, trim: true },
   laundry: { type: Boolean, default: false },
   budget: { type: String, trim: true },
 
-  // -------- Lifestyle --------
+  // Lifestyle & Preferences
   weatherSensitivity: { type: String, default: "Normal", trim: true },
   activityLevel: { type: String, default: "Moderate", trim: true },
   shopping: { type: Boolean, default: false },
   photographyGear: { type: Boolean, default: false },
   workLaptop: { type: Boolean, default: false },
 
-  // -------- Food & Health --------
+  // Food & Health Notes
   foodPreference: { type: String, default: "No preference", trim: true },
   dietaryNotes: { type: String, trim: true },
   medicalNotes: { type: String, trim: true },
 
-  // -------- Travelers --------
+  // Traveler Details
   kids: { type: Number, default: 0, min: 0 },
   elders: { type: Number, default: 0, min: 0 },
   travelers: [TravelerSchema],
 
-  // -------- Packing --------
+  // Generated Packing List
   packingList: [PackingCategorySchema],
 
-  // -------- Notes & Photos --------
+  // Notes & Media
   notes: [
     {
       text: { type: String, trim: true },
@@ -71,7 +73,7 @@ const TripSchema = new mongoose.Schema({
   photos: [{ type: String }]
 }, { timestamps: true });
 
-// Explicit index for fast queries by userId
+// Optimize query performance for user-specific trip lookups
 TripSchema.index({ userId: 1 });
 
 export default mongoose.model("Trip", TripSchema);

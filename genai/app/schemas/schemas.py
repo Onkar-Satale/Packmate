@@ -1,5 +1,8 @@
+# Pydantic schemas for data validation across GenAI API endpoints
+
 from typing import Optional
 from pydantic import BaseModel, Field
+
 
 class TripRequestGenerate(BaseModel):
     """

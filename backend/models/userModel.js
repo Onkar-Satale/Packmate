@@ -1,7 +1,8 @@
+// Mongoose User schema definition with bcrypt password hashing hooks and security serialization rules
+
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// Define User schema
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -27,7 +28,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Password is required"],
     minlength: [6, "Password must be at least 6 characters long"],
-    select: false // Prevent password from being queried by default
+    select: false
   },
   refreshToken: {
     type: String,
@@ -35,25 +36,24 @@ const userSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Hash password before saving
+// Hash user password using bcrypt before saving if modified
 userSchema.pre("save", async function() {
   if (!this.isModified("password")) return;
-  this.password = await bcrypt.hash(this.password, 12); // Enforce 12 salt rounds per spec
+  this.password = await bcrypt.hash(this.password, 12);
 });
 
-// Compare password securely
+// Compares plain text candidate password against the stored bcrypt hash
 userSchema.methods.comparePassword = async function(candidatePassword) {
+
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Remove password completely when returning JSON payload
+// Strip sensitive fields (password, refreshToken) from JSON payloads
 userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;
   delete obj.refreshToken;
   return obj;
 };
-
-// Note: Do NOT add `userSchema.index({ email: 1 })` here because unique: true already creates it!
 
 export default mongoose.model("User", userSchema);

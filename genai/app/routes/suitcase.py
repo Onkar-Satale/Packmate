@@ -1,3 +1,5 @@
+# Route definitions for vision-based suitcase analysis endpoint
+
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import verify_api_key
 from app.schemas.schemas import SuitcaseAnalysisRequest
@@ -6,6 +8,7 @@ from app.services.weather import compute_full_trip_weather
 from app.services.suitcase import validate_suitcase_image, analyze_suitcase_image
 
 router = APIRouter()
+
 
 @router.post("/analyze-suitcase", dependencies=[Depends(verify_api_key)])
 def api_analyze_suitcase(req: SuitcaseAnalysisRequest):

@@ -1,7 +1,10 @@
+# Centralized configuration setting up logging, environment path resolution, and Groq/GenAI API keys
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 import logging
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

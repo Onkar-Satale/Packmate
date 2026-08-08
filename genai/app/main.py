@@ -1,6 +1,9 @@
+# FastAPI application initialization, background RAG pre-loading, diagnostic endpoints, and router mounts
+
 import os
 import socket
 import threading
+
 
 # Force IPv4 DNS resolution to fix Docker/Alpine IPv6 DNS lookup bugs in cloud environments like Render
 try:

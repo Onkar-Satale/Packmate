@@ -1,3 +1,5 @@
+# RAG service module managing vector embeddings, ChromaDB queries, HuggingFace inference, and fallback LLM chat generation
+
 import os
 import re
 import logging
@@ -7,6 +9,7 @@ from fastapi import HTTPException
 from dotenv import load_dotenv
 
 # Setup logging
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,10 @@
+# Weather forecasting service utilizing Open-Meteo API, geocoding, and in-memory caching
+
 import time
 import random
 import requests
 from app.config.settings import logger
+
 
 # Cache for 10-day weather forecasts by location to prevent redundant API calls
 weather_cache = {}

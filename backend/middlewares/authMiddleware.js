@@ -1,6 +1,9 @@
+// JWT Bearer token authentication middleware for protecting private backend routes
+
 import jwt from 'jsonwebtoken';
 import ApiError from '../utils/ApiError.js';
 
+// Verifies Authorization header Bearer token and attaches decoded userId to req
 const authMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -14,7 +17,7 @@ const authMiddleware = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId; // Consistent user ID assignment
+    req.userId = decoded.userId;
 
     next();
   } catch (err) {

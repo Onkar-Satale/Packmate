@@ -1,3 +1,5 @@
+# Route definitions for AI packing list generation and Word document download endpoints
+
 import json
 import time
 from fastapi import APIRouter, Depends, Request
@@ -8,6 +10,7 @@ from app.services.packing_list import generation_cache, generate_packing_data, c
 from app.config.settings import logger
 
 router = APIRouter()
+
 
 @router.post("/generate-packing-list", dependencies=[Depends(verify_api_key)])
 def api_generate_packing_list(request: Request, trip: TripRequestGenerate):

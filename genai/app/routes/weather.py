@@ -1,3 +1,5 @@
+# Route definitions for location spelling correction and weather prefetching endpoint
+
 from fastapi import APIRouter, Depends
 from groq import Groq
 from app.config.settings import GROQ_API_KEY, logger
@@ -6,6 +8,7 @@ from app.dependencies import verify_api_key
 from app.services.weather import prefetch_and_cache_weather
 
 router = APIRouter()
+
 
 @router.post("/prefetch-weather", dependencies=[Depends(verify_api_key)])
 def api_prefetch_weather(req: PrefetchWeatherRequest):

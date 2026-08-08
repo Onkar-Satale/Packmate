@@ -1,3 +1,5 @@
+# Service module managing LLM packing list generation via Groq and Word document creation
+
 import json
 import re
 from io import BytesIO
@@ -7,6 +9,7 @@ from groq import Groq
 from docx import Document
 from app.config.settings import GROQ_API_KEY, logger
 from app.services.weather import compute_full_trip_weather
+
 
 # Simple in-memory cache for generated packing lists to prevent AI spam attacks
 generation_cache = {}

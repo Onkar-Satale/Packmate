@@ -1,6 +1,9 @@
+// Validation rules for user registration and login endpoints using express-validator
+
 import { body, validationResult } from 'express-validator';
 import ApiError from '../utils/ApiError.js';
 
+// Middleware evaluating express-validator result set and formatting 400 ApiError messages
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -10,6 +13,7 @@ const validateRequest = (req, res, next) => {
   next();
 };
 
+// Validation middleware chain for registration requests
 const registerValidator = [
   body("firstName").trim().notEmpty().withMessage("First name is required"),
   body("lastName").optional().trim(),
@@ -22,6 +26,7 @@ const registerValidator = [
   validateRequest,
 ];
 
+// Validation middleware chain for login requests
 const loginValidator = [
   body("email").trim().isEmail().withMessage("Valid email is required").normalizeEmail(),
   body("password").notEmpty().withMessage("Password is required"),
@@ -33,3 +38,4 @@ export {
   loginValidator,
   validateRequest
 };
+

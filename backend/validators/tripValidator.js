@@ -1,6 +1,9 @@
+// Validation rules for trip creation and update payloads using express-validator
+
 import { body } from 'express-validator';
 import { validateRequest } from './authValidator.js';
 
+// Validation middleware chain for trip creation
 const tripValidator = [
   body("destination").notEmpty().withMessage("Destination is required").isString().withMessage("Destination must be a string"),
   body("startDate").notEmpty().withMessage("Start date is required").isISO8601().toDate().withMessage("startDate must be a valid date"),
@@ -12,6 +15,7 @@ const tripValidator = [
   validateRequest,
 ];
 
+// Validation middleware chain for trip updates
 const updateTripValidator = [
   body("destination").optional().notEmpty().withMessage("Destination cannot be empty"),
   body("startDate").optional().isISO8601().toDate().withMessage("startDate must be a valid date"),
@@ -28,3 +32,4 @@ export {
   tripValidator,
   updateTripValidator
 };
+

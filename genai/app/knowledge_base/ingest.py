@@ -1,8 +1,11 @@
+# PDF Document parsing, text chunking, and ChromaDB vector indexing script
+
 import os
 import sys
 import glob
 import json
 import logging
+
 from pypdf import PdfReader
 from dotenv import load_dotenv
 

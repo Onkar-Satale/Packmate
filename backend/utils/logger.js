@@ -1,3 +1,5 @@
+// Winston logging setup providing file transports, log rotation, and development console formatting
+
 import winston from 'winston';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -5,6 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Winston logger instance managing error.log and combined.log transports
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
@@ -16,8 +19,8 @@ const logger = winston.createLogger({
     new winston.transports.File({ 
       filename: path.join(__dirname, "../logs/error.log"), 
       level: "error",
-      maxsize: 5 * 1024 * 1024, // 5MB limit per file
-      maxFiles: 5, // Keep maximum 5 rotated files
+      maxsize: 5 * 1024 * 1024,
+      maxFiles: 5,
       format: winston.format.combine(
         winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
         winston.format.json()
@@ -25,8 +28,8 @@ const logger = winston.createLogger({
     }),
     new winston.transports.File({ 
       filename: path.join(__dirname, "../logs/combined.log"),
-      maxsize: 5 * 1024 * 1024, // 5MB limit
-      maxFiles: 5, // Keep maximum 5 rotated files
+      maxsize: 5 * 1024 * 1024,
+      maxFiles: 5,
       format: winston.format.combine(
         winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
         winston.format.json()
@@ -35,7 +38,7 @@ const logger = winston.createLogger({
   ],
 });
 
-// Write console output naturally when running in development mode
+// Add colorized console logging for non-production environments
 if (process.env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
@@ -54,3 +57,4 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export default logger;
+

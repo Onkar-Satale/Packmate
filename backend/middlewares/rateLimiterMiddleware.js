@@ -1,9 +1,11 @@
+// Rate limiting middleware definitions for auth endpoints, general API endpoints, and heavy AI tasks
+
 import rateLimit from 'express-rate-limit';
 
-// Rate limiter for sensitive auth endpoints (login, register)
+// Strict rate limiter for authentication routes (login, register)
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // 30 requests per IP per window
+  windowMs: 15 * 60 * 1000,
+  max: 30,
   standardHeaders: true, 
   legacyHeaders: false, 
   message: {
@@ -12,10 +14,10 @@ export const authRateLimiter = rateLimit({
   },
 });
 
-// General rate limiter for all API endpoints
+// General rate limiter for general API routes
 export const apiRateLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 200, // 200 requests per IP per minute
+  windowMs: 1 * 60 * 1000,
+  max: 200,
   standardHeaders: true, 
   legacyHeaders: false, 
   message: {
@@ -24,10 +26,10 @@ export const apiRateLimiter = rateLimit({
   },
 });
 
-// Strict rate limiter for resource-heavy AI endpoints
+// Strict rate limiter for resource-intensive LLM/Vision AI operations
 export const aiRateLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 5, // 5 requests per minute
+  windowMs: 1 * 60 * 1000,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: { 
@@ -35,3 +37,4 @@ export const aiRateLimiter = rateLimit({
     message: 'Too many AI requests, please try again later.' 
   },
 });
+

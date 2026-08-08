@@ -1,11 +1,15 @@
+// Validation rules for GenAI proxy endpoints (weather prefetch, packing list generation, suitcase analysis, chat)
+
 import { body } from 'express-validator';
 import { validateRequest } from './authValidator.js';
 
+// Validation middleware for weather prefetching
 const prefetchWeatherValidator = [
   body("destination").notEmpty().withMessage("Destination is required").isString(),
   validateRequest,
 ];
 
+// Validation middleware for AI packing list generation
 const generatePackingListValidator = [
   body("destination").notEmpty().isString(),
   body("days").isInt({ min: 1, max: 120 }),
@@ -24,11 +28,13 @@ const generatePackingListValidator = [
   validateRequest,
 ];
 
+// Validation middleware for Word document download generation
 const downloadPackingListValidator = [
   body("packing_list").isArray().notEmpty().withMessage("packing_list must be a non-empty array"),
   validateRequest,
 ];
 
+// Validation middleware for vision-based suitcase capacity analysis
 const analyzeSuitcaseValidator = [
   body("image_base64").notEmpty().withMessage("Image data is required").isString(),
   body("packing_list").isArray().notEmpty().withMessage("packing_list must be a non-empty array"),
@@ -40,6 +46,7 @@ const analyzeSuitcaseValidator = [
   validateRequest,
 ];
 
+// Validation middleware for RAG travel chatbot requests
 const chatValidator = [
   body("message").notEmpty().withMessage("Message is required").isString().withMessage("Message must be a string"),
   validateRequest,
@@ -52,3 +59,4 @@ export {
   analyzeSuitcaseValidator,
   chatValidator,
 };
+

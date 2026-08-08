@@ -1,18 +1,20 @@
+// Authentication controller handling registration, login, token refresh, logout, and account deletion
+
 import authService from '../services/authService.js';
 import ApiError from '../utils/ApiError.js';
 
+// Sets secure HTTP-only cookie containing refresh token
 const setRefreshCookie = (res, token) => {
-  // Use SameSite=Lax for dev (supports localhost:3000 to localhost:5000)
-  // Use SameSite=None for cross-origin setups or production (requires secure HTTPS)
   const isProd = process.env.NODE_ENV === "production";
   res.cookie("refreshToken", token, {
     httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     sameSite: isProd ? "none" : "lax",
     secure: isProd
   });
 };
 
+// Registers a new user account and sets refresh token cookie
 export const register = async (req, res, next) => {
   try {
     const { email, password, firstName, lastName } = req.body;
@@ -41,6 +43,7 @@ export const register = async (req, res, next) => {
   }
 };
 
+// Authenticates user credentials and issues access & refresh tokens
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -71,6 +74,7 @@ export const login = async (req, res, next) => {
   }
 };
 
+// Issues a new JWT access token using a valid HTTP-only refresh token cookie
 export const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
@@ -91,6 +95,7 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
+// Logs out user by clearing cookie and clearing token from database
 export const logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
@@ -99,7 +104,7 @@ export const logout = async (req, res, next) => {
         const decoded = authService.verifyRefreshToken(refreshToken);
         await authService.clearRefreshToken(decoded.userId);
       } catch (e) {
-        // Ignore token expiration issues during logout
+        // Ignore token expiration error during logout
       }
     }
     res.clearCookie("refreshToken");
@@ -109,9 +114,10 @@ export const logout = async (req, res, next) => {
   }
 };
 
+// Deletes authenticated user account and associated trips
 export const deleteAccount = async (req, res, next) => {
   try {
-    const userId = req.userId; // auth middleware sets req.userId
+    const userId = req.userId;
     await authService.deleteUser(userId);
     res.clearCookie("refreshToken");
     res.json({ success: true, message: "Account deleted successfully" });
@@ -119,5 +125,4 @@ export const deleteAccount = async (req, res, next) => {
     next(err);
   }
 };
-
 
