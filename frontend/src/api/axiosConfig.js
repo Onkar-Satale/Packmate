@@ -13,12 +13,12 @@ export const onLogout = () => {
 };
 
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL, 
+    baseURL: process.env.REACT_APP_BACKEND_URL, 
     withCredentials: true // Extremely important for strictly passing HttpOnly Refresh Cookies
 });
 
 export const aiApi = axios.create({
-    baseURL: process.env.REACT_APP_API_URL + '/ai', 
+    baseURL: process.env.REACT_APP_BACKEND_URL + '/ai', 
     withCredentials: true // 5. Ensure aiApi also has withCredentials: true enabled.
 });
 

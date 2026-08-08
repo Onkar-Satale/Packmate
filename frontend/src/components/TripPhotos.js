@@ -126,7 +126,7 @@ const TripPhotos = ({ trip, setTrip, id, toast }) => {
             <div className="photos-container">
                 {trip.photos && trip.photos.length > 0 ? (
                     trip.photos.map((photo, i) => {
-                        const baseURL = process.env.REACT_APP_API_URL?.replace("/api", "") || "";
+                        const baseURL = process.env.REACT_APP_BACKEND_URL?.replace("/api", "") || "";
                         const photoURL = photo.startsWith("http") ? photo : `${baseURL}${photo}`;
                         return (
                             <div key={i} className="photo-wrapper">
@@ -171,7 +171,7 @@ const TripPhotos = ({ trip, setTrip, id, toast }) => {
                             src={
                                 trip.photos[currentPhotoIndex].startsWith("http")
                                     ? trip.photos[currentPhotoIndex]
-                                    : `${process.env.REACT_APP_API_URL?.replace("/api", "") || ""}${trip.photos[currentPhotoIndex]}`
+                                    : `${process.env.REACT_APP_BACKEND_URL?.replace("/api", "") || ""}${trip.photos[currentPhotoIndex]}`
                             }
                             alt={`Trip item ${currentPhotoIndex + 1}`}
                             className="lightbox-photo"

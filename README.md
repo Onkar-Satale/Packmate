@@ -123,7 +123,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ### 2. Frontend Configuration (`frontend/.env`)
 ```env
-REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_BACKEND_URL=http://localhost:5000/api
 REACT_APP_GENAI_URL=http://localhost:8000
 REACT_APP_GENAI_API_KEY=your_shared_inter_service_secret
 ```
