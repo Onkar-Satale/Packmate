@@ -21,8 +21,8 @@ from app.routes.packing_list import router as packing_list_router
 from app.routes.suitcase import router as suitcase_router
 from app.routes.chat import router as chat_router
 
-# Initialize the FastAPI application
-app = FastAPI(title="🎒Smart Packing Assistant API")
+# Initialize the FastAPI application (Swagger UI /docs and OpenAPI JSON disabled)
+app = FastAPI(title="🎒Smart Packing Assistant API", docs_url=None, redoc_url=None, openapi_url=None)
 
 # Pre-load RAG travel_chatbot in a background thread to prevent blocking Uvicorn's port binding.
 # This ensures that the application starts up instantly and binds to the port, preventing Render deployment timeouts.
