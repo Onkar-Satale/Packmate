@@ -224,13 +224,11 @@ npm start
 
 <div align="center">
 
-### 📋 AI Packing List Generation
-![Generating Packing List](assets/Generating_PackingList.png?raw=true)
-*AI generates a structured, weather-conscious packing list based on trip details.*
-
-### 💡 AI Workflow & How It Works
-![How It Works](assets/HowItWorks.png?raw=true)
-*Step-by-step interactive workflow explaining the AI packing generation lifecycle.*
+### 📋 AI Packing List & Workflow
+| Packing List Generation | How It Works Workflow |
+| :---: | :---: |
+| ![Generating Packing List](assets/Generating_PackingList.png?raw=true) | ![How It Works](assets/HowItWorks.png?raw=true) |
+| *AI generates a structured, weather-conscious packing list based on trip details.* | *Step-by-step interactive workflow explaining the AI packing generation lifecycle.* |
 
 ### 🔑 Authentication & Security
 | Login Interface | Account Profile |
