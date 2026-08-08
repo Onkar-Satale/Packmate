@@ -27,21 +27,21 @@ class AuthService {
     return await user.comparePassword(plainPassword);
   }
 
-  // Generates short-lived (15m) JWT access token
+  // Generates short-lived JWT access token
   generateAuthToken(userId) {
     return jwt.sign(
       { userId },
-      process.env.JWT_SECRET,
-      { expiresIn: "15m" }
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m" }
     );
   }
 
-  // Generates long-lived (7d) JWT refresh token
+  // Generates long-lived JWT refresh token
   generateRefreshToken(userId) {
     return jwt.sign(
       { userId },
       process.env.JWT_REFRESH_SECRET || 'refresh_fallback',
-      { expiresIn: "7d" }
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d" }
     );
   }
 

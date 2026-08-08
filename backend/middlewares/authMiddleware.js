@@ -16,7 +16,7 @@ const authMiddleware = (req, res, next) => {
       return next(new ApiError(401, "No token found in Bearer string"));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     req.userId = decoded.userId;
 
     next();

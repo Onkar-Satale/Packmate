@@ -112,7 +112,7 @@ Before running the application locally, set up the `.env` configuration files fo
 ```env
 PORT=5000
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/packmate
-JWT_SECRET=your_jwt_access_secret_key
+JWT_ACCESS_SECRET=your_jwt_access_secret_key
 JWT_REFRESH_SECRET=your_jwt_refresh_secret_key
 GENAI_SERVICE_URL=http://127.0.0.1:8000
 GENAI_API_KEY=your_shared_inter_service_secret
