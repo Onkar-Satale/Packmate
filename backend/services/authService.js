@@ -31,7 +31,7 @@ class AuthService {
   generateAuthToken(userId) {
     return jwt.sign(
       { userId },
-      process.env.JWT_ACCESS_SECRET,
+      process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m" }
     );
   }
