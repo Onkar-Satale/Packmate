@@ -21,12 +21,11 @@ process.on('unhandledRejection', (reason) => {
 connectDB();
 
 // Enforce critical environment variables before starting server
-const jwtAccessSecret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
-if (!jwtAccessSecret || !process.env.JWT_REFRESH_SECRET) {
-  throw new Error("Missing JWT environment variables: Ensure JWT_ACCESS_SECRET (or JWT_SECRET) and JWT_REFRESH_SECRET are set");
+if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+  throw new Error("Missing JWT environment variables: Ensure JWT_ACCESS_SECRET and JWT_REFRESH_SECRET are set in environment variables");
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   logger.info(`🚀 Server running on port ${PORT}`);

@@ -21,7 +21,7 @@ app.set("trust proxy", 1);
 // Security Headers & Dynamic CORS configuration
 app.use(helmet());
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
+const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(url => url.trim())
   : [];
 

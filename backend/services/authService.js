@@ -31,8 +31,8 @@ class AuthService {
   generateAuthToken(userId) {
     return jwt.sign(
       { userId },
-      process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m" }
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN}
     );
   }
 
@@ -40,8 +40,8 @@ class AuthService {
   generateRefreshToken(userId) {
     return jwt.sign(
       { userId },
-      process.env.JWT_REFRESH_SECRET || 'refresh_fallback',
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d" }
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
     );
   }
 
@@ -63,7 +63,7 @@ class AuthService {
 
   // Verifies JWT refresh token validity and returns decoded token payload
   verifyRefreshToken(token) {
-    return jwt.verify(token, process.env.JWT_REFRESH_SECRET || 'refresh_fallback');
+    return jwt.verify(token, process.env.JWT_REFRESH_SECRET );
   }
 }
 
