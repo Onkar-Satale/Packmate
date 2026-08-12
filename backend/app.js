@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middlewares/errorHandlerMiddleware.js';
 import { apiRateLimiter } from './middlewares/rateLimiterMiddleware.js';
+import sanitizeMiddleware from './middlewares/sanitizeMiddleware.js';
 import logger from './utils/logger.js';
 import authRoutes from './routes/authRoute.js';
 import tripRoutes from './routes/tripRoute.js';
@@ -40,6 +41,7 @@ app.use(cors({
 // Request Body & Cookie Parsers
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(sanitizeMiddleware);
 app.use(cookieParser());
 
 // HTTP Request Logging
